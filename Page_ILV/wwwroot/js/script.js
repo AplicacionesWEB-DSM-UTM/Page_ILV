@@ -47,8 +47,8 @@ function getMap(datos) {
 
         datos.forEach(x => {
             return new google.maps.Marker({
-                title: x.id_reporte,
-                position: { lat: parseFloat(x.latitud), lng: parseFloat(x.longitud) },
+                title: x.idreporte,
+                position: { lat: parseFloat(x.geoubicacionRequest.latitud), lng: parseFloat(x.geoubicacionRequest.longitud) },
                 map: mapa
             });
         })
@@ -56,8 +56,8 @@ function getMap(datos) {
 }
 function getByIdMap(dato) {
     const coordenadas = {
-        lat: parseFloat(dato.lat),
-        lng: parseFloat(dato.lon)
+        lat: parseFloat(dato.latitud),
+        lng: parseFloat(dato.longitud)
     }
     const options = {
         center: coordenadas,
@@ -92,7 +92,8 @@ function editMap(dato) {
     var mapa = new google.maps.Map(document.getElementById("editmap"), options);
     var marker = new google.maps.Marker({
         position: coordenadas,
-        title: dato.id_Reporte,
+        title: dato.idGeoubicacion,
+        draggable: true,
         map: mapa
     });
 

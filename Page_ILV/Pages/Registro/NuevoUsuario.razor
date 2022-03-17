@@ -16,7 +16,7 @@
         <div class="form-group row mb-1">
             <label class="col-sm-3">Foto</label>
             <div class="col-sm-9">
-                <InputText class="form-control" @bind-Value="@oRegistro.Foto" required></InputText>
+                <InputText class="form-control" @bind-Value="@oFoto.Nombre" required></InputText>
             </div>
         </div>
         <div class="form-group row mb-1">
@@ -28,7 +28,7 @@
         <div class="form-group row mb-1">
             <label class="col-sm-3">Apellidos</label>
             <div class="col-sm-9">
-                <InputText class="form-control" @bind-Value="@oRegistro.Apellidos" required></InputText>
+                <InputText class="form-control" @bind-Value="@oRegistro.Apellido" required></InputText>
             </div>
         </div>
         <div class="form-group row mb-1">
@@ -58,25 +58,28 @@
     [Parameter]
     public int id { get; set; }
 
-    Regist oRegistro = new Regist();
+    FotoRequest oFoto = new FotoRequest();
+    UsuarioRequest oRegistro = new UsuarioRequest();
     Respuesta<object> oRespuesta = new Respuesta<object>();
-    Respuesta<Regist> oRespuestaRegistro = new Respuesta<Regist>();
+    Respuesta<UsuarioRequest> oRespuestaRegistro = new Respuesta<UsuarioRequest>();
 
-    public string Url = "/api/Registro";
+    public string Url = "/api/Usuario";
 
     private void Cancelar() => Navegacion.NavigateTo("/registro");
 
     private async Task Guardar()
     {
+        oRegistro.FotoRequest = oFoto;
+
         if (id != 0)
         {
-            var response = await Http.PutAsJsonAsync<Regist>(Url, oRegistro);
+            var response = await Http.PutAsJsonAsync<UsuarioRequest>(Url, oRegistro);
             oRespuesta = response.Content.ReadFromJsonAsync<Respuesta<object>>().Result;
             Navegacion.NavigateTo("/registro");
         }
         else
         {
-            var response = await Http.PostAsJsonAsync<Regist>(Url, oRegistro);
+            var response = await Http.PostAsJsonAsync<UsuarioRequest>(Url, oRegistro);
             oRespuesta = response.Content.ReadFromJsonAsync<Respuesta<object>>().Result;
             Navegacion.NavigateTo("/registro");
         }
@@ -86,8 +89,9 @@
     {
         if (id != 0)
         {
-            oRespuestaRegistro = await Http.GetFromJsonAsync<Respuesta<Regist>>(Url + "/" + id);
+            oRespuestaRegistro = await Http.GetFromJsonAsync<Respuesta<UsuarioRequest>>(Url + "/" + id);
             oRegistro = oRespuestaRegistro.Data;
+            oFoto = oRegistro.FotoRequest;
         }
     }
 }

@@ -28,13 +28,13 @@
     <tbody>
         @if (oRespuesta != null && oRespuesta.Data != null)
         {
-            @foreach (var oElemento in (List<Regist>)oRespuesta.Data)
+            @foreach (var oElemento in (List<UsuarioRequest>)oRespuesta.Data)
             {
                 <tr>
                     <td>@oElemento.IdUsuario</td>
-                    <td>@oElemento.Foto</td>
+                    <td>@oElemento.FotoRequest.Nombre</td>
                     <td>@oElemento.Nombre</td>
-                    <td>@oElemento.Apellidos</td>
+                    <td>@oElemento.Apellido</td>
                     <td>@oElemento.Correo</td>
                     <td>
                         <a href="/nuevo-registro/@oElemento.IdUsuario" class="btn btn-secondary m-1 col-sm-7">Editar</a>
@@ -47,10 +47,10 @@
 </table>
 
 @code {
-    public string Url = "/api/Registro";
+    public string Url = "/api/Usuario";
 
-    public Respuesta<List<Regist>> oRespuesta = new Respuesta<List<Regist>>();
+    public Respuesta<List<UsuarioRequest>> oRespuesta = new Respuesta<List<UsuarioRequest>>();
 
     protected override async Task OnInitializedAsync() =>
-    oRespuesta = await Http.GetFromJsonAsync<Respuesta<List<Regist>>>(Url);
+    oRespuesta = await Http.GetFromJsonAsync<Respuesta<List<UsuarioRequest>>>(Url);
 }

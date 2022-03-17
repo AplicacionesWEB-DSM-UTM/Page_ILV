@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Net.Http;
+using Tewr.Blazor.FileReader;
 
 namespace Page_ILV
 {
@@ -33,6 +34,7 @@ namespace Page_ILV
             var httpClientHanler = new HttpClientHandler();
             httpClientHanler.ServerCertificateCustomValidationCallback = (message, cert, chain, error) => true;
 
+            services.AddFileReaderService(o => o.UseWasmSharedBuffer = true);
             services.AddSingleton(new HttpClient(httpClientHanler)
             {
                 BaseAddress = new Uri("https://localhost:44378")

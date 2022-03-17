@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Page_ILV.Models.Request
+namespace Page_ILV.Data
 {
-    public class Usuario
+    public class UsuarioRequest
     {
         public int IdUsuario { get; set; }
         public int? IdFoto { get; set; }
@@ -13,6 +13,6 @@ namespace Page_ILV.Models.Request
         public string Apellido { get; set; }
         public string Correo { get; set; }
         public string Contraseña { get; set; }
-        public Foto FotoRequest { get; set; }
+        public FotoRequest FotoRequest { get; set; }
     }
 }

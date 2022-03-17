@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Page_ILV.Models.Request
+namespace Page_ILV.Data
 {
-    public class Reporte
+    public class ReporteRequest
     {
         public int IdReporte { get; set; }
         public int? IdUsuario { get; set; }
@@ -14,9 +14,9 @@ namespace Page_ILV.Models.Request
         public int? IdGeoubicacion { get; set; }
         public DateTime? Fecha { get; set; }
         public string Descripcion { get; set; }
-        public Usuario UsuarioRequest { get; set; }
-        public Etiqueta EtiquetaRequest { get; set; }
-        public Foto FotoRequest { get; set; }
-        public Geoubicacion GeoubicacionRequest { get; set; }
+        public UsuarioRequest UsuarioRequest { get; set; }
+        public EtiquetaRequest EtiquetaRequest { get; set; }
+        public FotoRequest FotoRequest { get; set; }
+        public GeoubicacionRequest GeoubicacionRequest { get; set; }
     }
 }

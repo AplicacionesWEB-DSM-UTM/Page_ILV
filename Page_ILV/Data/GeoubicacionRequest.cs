@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Page_ILV.Models.Request
+namespace Page_ILV.Data
 {
-    public class Geoubicacion
+    public class GeoubicacionRequest
     {
         public int IdGeoubicacion { get; set; }
         public double? Latitud { get; set; }

@@ -1,0 +1,157 @@
+﻿@page "/EditarReport/{id:int}"
+
+@using Page_ILV.Data;
+@using System.Net.Http;
+@using System.Net.Http.Json;
+@inject HttpClient Http;
+@inject NavigationManager Navegacion;
+@inject IJSRuntime _jsRuntime;
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+        <link rel="stylesheet" href="css/assets/bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,400i,700,700i,600,600i">
+        <link rel="stylesheet" href="css/assets/fonts/simple-line-icons.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.css">
+        <link rel="stylesheet" href="css/assets/css/vanilla-zoom.min.css">
+        <link rel="stylesheet" href="css/assets/css/stilos.css">
+    </head>
+
+    <h1 class="p-3">Reporte #@oReport.IdReporte</h1>
+
+    <section class="p-3">
+        <div class="img-thumbnail" id="editmap" style="height:500px;width:100%;"></div>
+    </section>
+
+    <section class="clean-block clean-info dark m-3 py-5">
+        <EditForm Model="oReport">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="form-group row my-1">
+                        <label class="col-sm-3">Foto</label>
+                        <div class="col-sm-9">
+                            <InputText class="form-control" @bind-Value="@oFoto.Nombre" required></InputText>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-3">Descripcion</label>
+                        <div class="col-sm-9">
+                            <InputText class="form-control" @bind-Value="@oReport.Descripcion" required></InputText>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-3">Usuario</label>
+                        <div class="col-sm-9">
+                            <InputSelect class="form-control" @bind-Value="@id_usuario" required>
+                                @if (oUsuario != null && oUsuario.Data != null)
+                                {
+                                    @foreach (var oElemento in (List<UsuarioRequest>)oUsuario.Data)
+                                    {
+                                        <option value="@oElemento.IdUsuario.ToString()">@oElemento.Correo</option>
+                                    }
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-3">Etiqueta</label>
+                        <div class="col-sm-9">
+                            <InputSelect class="form-control" @bind-Value="@id_etiqueta" required>
+                                @if (oEtiqueta != null && oEtiqueta.Data != null)
+                                {
+                                    @foreach (var oElemento in (List<EtiquetaRequest>)oEtiqueta.Data)
+                                    {
+                                        <option value="@oElemento.IdEtiqueta.ToString()">@oElemento.Nombre</option>
+                                    }
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-3">Latitud</label>
+                        <div class="col-sm-9">
+                            <InputNumber type="hidden" class="form-control" id="latitud" @bind-Value="@oGeoubicacion.Latitud" required></InputNumber>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-3">Longitud</label>
+                        <div class="col-sm-9">
+                            <InputNumber type="hidden" class="form-control" id="longitud" @bind-Value="@oGeoubicacion.Longitud" required></InputNumber>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="btn btn-outline-primary m1" @onclick="Guardar">Guadar</button>
+                        <button class="btn btn-outline-danger m1" @onclick="Cancelar">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </EditForm>
+    </section>
+
+    @code {
+        [Parameter]
+        public int id { get; set; }
+        public string id_usuario { get; set; }
+        public string id_etiqueta { get; set; }
+
+        Respuesta<List<UsuarioRequest>> oUsuario = new Respuesta<List<UsuarioRequest>>();
+        Respuesta<List<EtiquetaRequest>> oEtiqueta = new Respuesta<List<EtiquetaRequest>>();
+
+        ReporteRequest oReport = new ReporteRequest();
+        FotoRequest oFoto = new FotoRequest();
+        GeoubicacionRequest oGeoubicacion = new GeoubicacionRequest();
+
+        Respuesta<object> oRespuesta = new Respuesta<object>();
+        Respuesta<ReporteRequest> oRespuestaReport = new Respuesta<ReporteRequest>();
+
+        public string Url = "/api/Reporte";
+        public string Url_Usuario = "/api/Usuario";
+        public string Url_Etiqueta = "/api/Etiqueta";
+
+        private void Cancelar() => Navegacion.NavigateTo("/");
+
+        private async Task Guardar()
+        {
+            oReport.IdUsuario = Convert.ToInt32(id_usuario);
+            oReport.IdEtiqueta = Convert.ToInt32(id_etiqueta);
+            oFoto.Url = "https://localhost:44315/Img/usr/" + oFoto.Nombre;
+            oReport.FotoRequest = oFoto;
+            oReport.GeoubicacionRequest = oGeoubicacion;
+
+            if (id != 0)
+            {
+                var response = await Http.PutAsJsonAsync<ReporteRequest>(Url, oReport);
+                oRespuesta = response.Content.ReadFromJsonAsync<Respuesta<object>>().Result;
+                Navegacion.NavigateTo("/");
+            }
+        }
+
+        protected override async Task OnInitializedAsync()
+        {
+            oUsuario = await Http.GetFromJsonAsync<Respuesta<List<UsuarioRequest>>>(Url_Usuario);
+            oEtiqueta = await Http.GetFromJsonAsync<Respuesta<List<EtiquetaRequest>>>(Url_Etiqueta);
+
+            id_usuario = oUsuario.Data.First().IdUsuario.ToString();
+            id_etiqueta = oEtiqueta.Data.First().IdEtiqueta.ToString();
+
+            if (id != 0)
+            {
+                oRespuestaReport = await Http.GetFromJsonAsync<Respuesta<ReporteRequest>>(Url + "/" + id);
+                oReport = oRespuestaReport.Data;
+                oFoto = oReport.FotoRequest;
+                oGeoubicacion = oReport.GeoubicacionRequest;
+
+                id_usuario = oReport.IdUsuario.ToString();
+                id_etiqueta = oReport.IdEtiqueta.ToString();
+            }
+        }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender)
+            {
+                await _jsRuntime.InvokeVoidAsync("editMap", oGeoubicacion);
+            }
+        }
+    }
