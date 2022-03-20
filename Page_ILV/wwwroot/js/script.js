@@ -1,6 +1,4 @@
-﻿const { map } = require("jquery");
-
-function initMap() {
+﻿function initMap() {
     let lugarinfo = []
     const ubicacion = new Localizacion(() => {
         const coordenadas = {
@@ -10,7 +8,6 @@ function initMap() {
         const options = {
             center: coordenadas,
             zoom: 14,
-            mapTypeId: google.maps.MapTypeId.ROADMAP
         }
 
         var mapa = new google.maps.Map(document.getElementById("map"), options);
@@ -22,12 +19,10 @@ function initMap() {
         });
 
         marker.addListener('dragend', function (event) {
-            document.getElementById("latitud").value = this.getPosition().lat();
-            document.getElementById("longitud").value = this.getPosition().lng();
+            actualizar(this.getPosition().lat(), this.getPosition().lng());
         });
 
-        document.getElementById("latitud").value = ubicacion.latitude;
-        document.getElementById("longitud").value = ubicacion.longitude;
+        actualizar(coordenadas.lat, coordenadas.lng);
     });
 }
 function getMap(datos) {
@@ -40,65 +35,64 @@ function getMap(datos) {
         const options = {
             center: coordenadas,
             zoom: 14,
-            mapTypeId: google.maps.MapTypeId.ROADMAP
         }
 
         var mapa = new google.maps.Map(document.getElementById("getmap"), options);
 
         datos.forEach(x => {
             return new google.maps.Marker({
-                title: x.idreporte,
-                position: { lat: parseFloat(x.geoubicacionRequest.latitud), lng: parseFloat(x.geoubicacionRequest.longitud) },
+                title: "Reporte #" + String(x.idReporte),
+                position: { lat: x.geoubicacionRequest.latitud, lng: x.geoubicacionRequest.longitud },
                 map: mapa
             });
         })
     });
 }
 function getByIdMap(dato) {
-    const coordenadas = {
-        lat: parseFloat(dato.latitud),
-        lng: parseFloat(dato.longitud)
-    }
     const options = {
-        center: coordenadas,
+        center: { lat: dato.geoubicacionRequest.latitud, lng: dato.geoubicacionRequest.longitud },
         zoom: 14,
-        mapTypeId: google.maps.MapTypeId.ROADMAP
     }
 
     var mapa = new google.maps.Map(document.getElementById("getbyidmap"), options);
     var marker = new google.maps.Marker({
-        position: coordenadas,
-        title: dato.ubicacion,
+        title: "Reporte #" + String(dato.idReporte),
+        position: { lat: dato.geoubicacionRequest.latitud, lng: dato.geoubicacionRequest.longitud },
         map: mapa
-    });
-
-    marker.addListener("click", () => {
-        infoWindow.close();
-        infoWindow.setContent(marker.getTitle());
-        infoWindow.open(marker.getMap(), marker);
     });
 }
 function editMap(dato) {
-    const coordenadas = {
-        lat: parseFloat(dato.latitud),
-        lng: parseFloat(dato.longitud)
-    }
     const options = {
-        center: coordenadas,
+        center: { lat: dato.geoubicacionRequest.latitud, lng: dato.geoubicacionRequest.longitud },
         zoom: 14,
-        mapTypeId: google.maps.MapTypeId.ROADMAP
     }
 
     var mapa = new google.maps.Map(document.getElementById("editmap"), options);
     var marker = new google.maps.Marker({
-        position: coordenadas,
-        title: dato.idGeoubicacion,
+        title: "Reporte #" + String(dato.idReporte),
+        position: { lat: dato.geoubicacionRequest.latitud, lng: dato.geoubicacionRequest.longitud },
         draggable: true,
         map: mapa
     });
 
     marker.addListener('dragend', function (event) {
-        document.getElementById("latitud").value = this.getPosition().lat();
-        document.getElementById("longitud").value = this.getPosition().lng();
+        actualizar(this.getPosition().lat(), this.getPosition().lng());
     });
 }
+function actualizar(latitud, longitud) {
+    var event = new Event('change');
+
+    var lat = document.getElementById("latitud");
+    var lng = document.getElementById("longitud");
+
+    lat.value = latitud;
+    lng.value = longitud;
+
+    lat.dispatchEvent(event);
+    lng.dispatchEvent(event);
+}
+/*marker.addListener("click", () => {
+    infoWindow.close();
+    infoWindow.setContent(marker.getTitle());
+    infoWindow.open(marker.getMap(), marker);
+});*/

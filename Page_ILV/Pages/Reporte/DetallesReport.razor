@@ -52,7 +52,6 @@
         public string fecha { get; set; }
 
         FotoRequest oFoto = new FotoRequest();
-        GeoubicacionRequest oGeoubicacion = new GeoubicacionRequest();
         EtiquetaRequest oEtiqueta = new EtiquetaRequest();
         UsuarioRequest oUsuario = new UsuarioRequest();
         ReporteRequest oReport = new ReporteRequest();
@@ -70,7 +69,6 @@
                 oRespuestaReport = await Http.GetFromJsonAsync<Respuesta<ReporteRequest>>(Url + "/" + id);
                 oReport = oRespuestaReport.Data;
                 oFoto = oReport.FotoRequest;
-                oGeoubicacion = oReport.GeoubicacionRequest;
                 oEtiqueta = oReport.EtiquetaRequest;
                 oUsuario = oReport.UsuarioRequest;
                 fecha = oReport.Fecha.Value.ToString("dd/MMMM/yyyy");
@@ -81,7 +79,7 @@
         {
             if (firstRender)
             {
-                await _jsRuntime.InvokeVoidAsync("getByIdMap", oGeoubicacion);
+                await _jsRuntime.InvokeVoidAsync("getByIdMap", oReport);
             }
         }
     }

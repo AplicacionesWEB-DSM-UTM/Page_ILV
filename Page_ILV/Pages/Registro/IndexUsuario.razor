@@ -8,49 +8,53 @@
     <img src="css/Img/Nuevo Usuario.png" height="200" width="450" />
 </div>
 
-<div class="row">
-    <div class="col-12 text-right">
-        <a href="nuevo-registro" class="btn btn-primary m-1">Nuevo</a>
+<div class="p-3">
+    <div class="text-right">
+        <a href="nuevo-registro" class="btn btn-outline-primary m-1">Nuevo</a>
     </div>
+    <table class="table table-light table-striped">
+        <thead class="table-warning text-dark">
+            <tr>
+                <td>#</td>
+                <td>Foto</td>
+                <td>Nombre</td>
+                <td>Apellidos</td>
+                <td>Correo</td>
+                <th>Opciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (oRespuesta != null && oRespuesta.Data != null)
+            {
+                @foreach (var oElemento in (List<UsuarioRequest>)oRespuesta.Data)
+                {
+                    <tr>
+                        <td>@oElemento.IdUsuario</td>
+                        <td>
+                            <a href="@oElemento.FotoRequest.Url">
+                                <img src="@oElemento.FotoRequest.Url" alt="@oElemento.FotoRequest.Nombre" class="img-fluid img-not" style="height:5rem;width:5rem;" />
+                            </a>
+                        </td>
+                        <td>@oElemento.Nombre</td>
+                        <td>@oElemento.Apellido</td>
+                        <td>@oElemento.Correo</td>
+                        <td>
+                            <a href="/detalles-registro/@oElemento.IdUsuario" class="btn btn-outline-primary m-1">Detalles</a>
+                            <a href="/nuevo-registro/@oElemento.IdUsuario" class="btn btn-outline-secondary m-1">Editar</a>
+                            <a href="/eliminar-registro/@oElemento.IdUsuario" class="btn btn-outline-danger m-1">Eliminar</a>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
 </div>
 
-<table class="table table-primary table-striped">
-    <thead>
-        <tr>
-            <td>#</td>
-            <td>Foto</td>
-            <td>Nombre</td>
-            <td>Apellidos</td>
-            <td>Correo</td>
-            <th>Opciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (oRespuesta != null && oRespuesta.Data != null)
-        {
-            @foreach (var oElemento in (List<UsuarioRequest>)oRespuesta.Data)
-            {
-                <tr>
-                    <td>@oElemento.IdUsuario</td>
-                    <td>@oElemento.FotoRequest.Nombre</td>
-                    <td>@oElemento.Nombre</td>
-                    <td>@oElemento.Apellido</td>
-                    <td>@oElemento.Correo</td>
-                    <td>
-                        <a href="/nuevo-registro/@oElemento.IdUsuario" class="btn btn-secondary m-1 col-sm-7">Editar</a>
-                        <a href="/eliminar-registro/@oElemento.IdUsuario" class="btn btn-danger m-1 col-sm-7">Eliminar</a>
-                    </td>
-                </tr>
-            }
-        }
-    </tbody>
-</table>
+    @code {
+        public string Url = "/api/Usuario";
 
-@code {
-    public string Url = "/api/Usuario";
+        public Respuesta<List<UsuarioRequest>> oRespuesta = new Respuesta<List<UsuarioRequest>>();
 
-    public Respuesta<List<UsuarioRequest>> oRespuesta = new Respuesta<List<UsuarioRequest>>();
-
-    protected override async Task OnInitializedAsync() =>
-    oRespuesta = await Http.GetFromJsonAsync<Respuesta<List<UsuarioRequest>>>(Url);
-}
+        protected override async Task OnInitializedAsync() =>
+        oRespuesta = await Http.GetFromJsonAsync<Respuesta<List<UsuarioRequest>>>(Url);
+    }
