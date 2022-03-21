@@ -21,6 +21,10 @@
         <div class="image"></div>
         <div class="frm">
             <h1>Bienvenido de nuevo</h1>
+            @if(msg != null)
+            {
+                <p class="text-danger"><b><i>@msg</i></b></p>
+            } 
             <EditForm Model="oRegistro">
                 <DataAnnotationsValidator />
                 <div class="form-group">
@@ -45,6 +49,7 @@
 @code {
     private readonly string llaveToken = "token";
     public string token { get; set; }
+    public string msg { get; set; }
 
     [Parameter]
     public string response { get; set; }
@@ -63,8 +68,15 @@
             var response = await Http.PutAsJsonAsync<UsuarioRequest>(Url, oRegistro);
             oRespuesta = response.Content.ReadFromJsonAsync<Respuesta<object>>().Result;
 
-            await _jsRuntime.InvokeVoidAsync("AgregarCookie", llaveToken, oRespuesta.Data, 45);
-            Navegacion.NavigateTo("/", true);
+            if (oRespuesta.Data != null)
+            {
+                await _jsRuntime.InvokeVoidAsync("AgregarCookie", llaveToken, oRespuesta.Data, 45);
+                Navegacion.NavigateTo("/", true);
+            }
+            else
+            {
+                msg = oRespuesta.Mensaje;
+            }
         }
     }
     protected override void OnInitialized()
