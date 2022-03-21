@@ -1,0 +1,69 @@
+﻿@page "/perfil"
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <link rel="stylesheet" href="css/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,400i,700,700i,600,600i">
+    <link rel="stylesheet" href="css/assets/fonts/simple-line-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.css">
+    <link rel="stylesheet" href="css/assets/css/vanilla-zoom.min.css">
+    <link rel="stylesheet" href="css/assets/css/stilos.css">
+
+</head>
+
+<body>
+    <header class="text-center text-white masthead" style="background: url('Img/Oscuridad-.gif')no-repeat center center; background-size: cover; height: 380px; "> </header>
+    <br />
+    <section class="clean-block clean-info dark">
+        <div class="container">
+            <div class="block-heading">
+                <h2 class="text-info">Información de la cuenta</h2>
+                <p>¿Te gustaria cambiar algo? da clic en editar!.</p>
+            </div>
+
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h3>Tu informacion personal</h3>
+                    <div class="getting-started-info">
+                        <p>Puedes editar tus datos dando clic en el boton.</p>
+                        <h4>Nombre:</h4>
+                        <h5>Rafael</h5>
+                        <h4>Apellidos:</h4>
+                        <h5>Cauich Colli</h5>
+                        <h4>Correo:</h4>
+                        <h5>xxrafaflooxx@gmail.com</h5>
+                        <h4>Pass:</h4>
+                        <h5><input type="password"></h5>
+                    </div>
+                    <a href="/detalles-registro/{id:int}" class="btn btn-outline-primary btn-lg" type="button">Editar mis datos</a>
+                </div>
+                <div class="col-md-6"><img class="img-thumbnail" src="css/Img/RF.png"></div>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="clean-block features">
+        <div class="container">
+            <div class="block-heading">
+                <h2 class="text-info">Detalles</h2>
+                <p>Informacion sobre el manejo de cuentas en esta pagina.</p>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-md-5 feature-box">
+                    <i class="icon-star icon"></i>
+                    <h4>Tu informacion esta asegurada</h4>
+                    <p>Esta en nuestra base de datos bien resguardada y puedes editarla y/o elminiarla cuando gustes.</p>
+                    <a href="/detalles-registro/{id:int}" class="btn btn-outline-primary btn-lg" type="button">Editar mis datos</a>
+                </div>
+                <div class="col-md-5 feature-box">
+                    <i class="icon-pencil icon"></i>
+                    <h4>Consulta la informacion de tus reportes.</h4>
+                    <p>Puedes consultar tus reportes aqui.</p>
+                    <a href="/report" class="btn btn-outline-primary btn-lg" type="button">Ver mis reportes</a>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
