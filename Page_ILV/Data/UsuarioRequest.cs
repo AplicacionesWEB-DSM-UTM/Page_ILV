@@ -20,7 +20,8 @@ namespace Page_ILV.Data
         [EmailAddress]
         public string Correo { get; set; }
         [Required(ErrorMessage = "Este campo es requerido")]
-        public string Contraseña { get; set; }
+        public string Password { get; set; }
+        public string Token { get; set; }
         public FotoRequest FotoRequest { get; set; }
     }
 }

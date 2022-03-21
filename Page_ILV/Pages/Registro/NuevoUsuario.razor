@@ -57,8 +57,8 @@
                 <div class="form-group row mb-1">
                     <label class="col-sm-3">Contraseña</label>
                     <div class="col-sm-9">
-                        <InputText type="password" class="form-control" @bind-Value="@oRegistro.Contraseña"></InputText>
-                        <ValidationMessage For="(() => oRegistro.Contraseña)" />
+                        <InputText type="password" class="form-control" @bind-Value="@oRegistro.Password"></InputText>
+                        <ValidationMessage For="(() => oRegistro.Password)" />
                     </div>
                 </div>
                 <div class="mb-1">
@@ -82,9 +82,9 @@
 
         private async Task Guardar()
         {
-            if (oRegistro.Nombre != null && oRegistro.Apellido != null && oRegistro.Correo != null && oRegistro.Contraseña != null && oRegistro.NombreFoto != null)
+            if (oRegistro.Nombre != null && oRegistro.Apellido != null && oRegistro.Correo != null && oRegistro.Password != null && oRegistro.NombreFoto != null)
             {
-                if (oRegistro.Nombre != string.Empty && oRegistro.Apellido != string.Empty && oRegistro.Correo != string.Empty && oRegistro.Contraseña != string.Empty && oRegistro.NombreFoto != string.Empty)
+                if (oRegistro.Nombre != string.Empty && oRegistro.Apellido != string.Empty && oRegistro.Correo != string.Empty && oRegistro.Password != string.Empty && oRegistro.NombreFoto != string.Empty)
                 {
                     oRegistro.FotoRequest = new FotoRequest()
                     {

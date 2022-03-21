@@ -1,4 +1,8 @@
-﻿<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #94d494;">
+﻿@inject NavigationManager Navegacion;
+@inject AppData appData
+@inject IJSRuntime _jsRuntime;
+
+<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #94d494;">
     <a class="navbar-brand" href="#"></a><img src="css/Img/textwit.png" alt="Text" width="185" height="40" />
 
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -25,18 +29,28 @@
                     <span class="oi oi-info" aria-hidden="true"></span> Sobre nosotros
                 </NavLink>
             </li>
+            @if (appData.Token == null)
+            {
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link text-white" href="Login">
+                        <span class="oi oi-person" aria-hidden="true"></span> Iniciar sesion
+                    </NavLink>
+                </li>
 
-            <li class="nav-item px-3">
-                <NavLink class="nav-link text-white" href="Login">
-                    <span class="oi oi-person" aria-hidden="true"></span> Iniciar sesion
-                </NavLink>
-            </li>
-
-            <li class="nav-item px-3">
-                <NavLink class="nav-link text-white" href="nuevo-registro">
-                    <span class="oi oi-people" aria-hidden="true"></span> Registrarse
-                </NavLink>
-            </li>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link text-white" href="nuevo-registro">
+                        <span class="oi oi-people" aria-hidden="true"></span> Registrarse
+                    </NavLink>
+                </li>
+            }
+            else
+            {
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link text-white" href="" @onclick="@CerrarSesion">
+                        <span class="oi oi-person" aria-hidden="true"></span> cerrar sesion
+                    </NavLink>
+                </li>
+            }
         </ul>
 
 
@@ -47,6 +61,8 @@
 
 
 @code {
+    private readonly string llaveToken = "token";
+
     private bool collapseNavMenu = true;
 
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
@@ -54,5 +70,11 @@
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    private async Task CerrarSesion()
+    {
+        await _jsRuntime.InvokeVoidAsync("EliminarCookie", llaveToken);
+        Navegacion.NavigateTo("/", true);
     }
 }

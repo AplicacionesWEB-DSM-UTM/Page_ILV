@@ -1,4 +1,13 @@
 ﻿@page "/login"
+
+@using Page_ILV.Data;
+@using System.Net.Http;
+@using System.Net.Http.Json;
+@inject HttpClient Http;
+@inject NavigationManager Navegacion;
+@inject AppData appData
+@inject IJSRuntime _jsRuntime;
+
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="utf-8">
@@ -12,21 +21,57 @@
         <div class="image"></div>
         <div class="frm">
             <h1>Bienvenido de nuevo</h1>
-            <form>
+            <EditForm Model="oRegistro">
+                <DataAnnotationsValidator />
                 <div class="form-group">
                     <label for="email"><b>Correo:</b></label>
-                    <input type="email" class="form-control" id="email" placeholder="Escribe tu correo">
+                    <InputText class="form-control" type="email" id="email" placeholder="Escribe tu correo" @bind-Value="@oRegistro.Correo"></InputText>
+                    <ValidationMessage For="(() => oRegistro.Correo)" />
                 </div>
                 <div class="form-group">
                     <label for="pwd"><b>Contraseña:</b></label>
-                    <input type="password" class="form-control" id="pwd" placeholder="Escribe tu contraseña">
+                    <InputText class="form-control" type="password" id="pwd" placeholder="Escribe tu contraseña" @bind-Value="@oRegistro.Password"></InputText>
+                    <ValidationMessage For="(() => oRegistro.Password)" />
                 </div>
-                <div class="form-group">
-                    <p><a href="#">Iniciar sesion</a></p>
+                <div class="mb-1">
+                    <button class="btn btn-outline-primary m1" @onclick="IniciarSesion">Iniciar sesion</button>
+                    <button class="btn btn-outline-danger m1" @onclick="Cancelar">Cancelar</button>
                 </div>
-            </form>
+            </EditForm>
         </div>
     </div>
 </body>
 
+@code {
+    private readonly string llaveToken = "token";
+    public string token { get; set; }
 
+    [Parameter]
+    public string response { get; set; }
+    UsuarioRequest oRegistro = new UsuarioRequest();
+    Respuesta<object> oRespuesta = new Respuesta<object>();
+    Respuesta<UsuarioRequest> oRespuestaRegistro = new Respuesta<UsuarioRequest>();
+
+    public string Url = "/api/Usuario/login";
+
+    private void Cancelar() => Navegacion.NavigateTo("/");
+
+    private async Task IniciarSesion()
+    {
+        if (oRegistro.Correo != null && oRegistro.Password != null && oRegistro.Correo != string.Empty && oRegistro.Password != string.Empty)
+        {
+            var response = await Http.PutAsJsonAsync<UsuarioRequest>(Url, oRegistro);
+            oRespuesta = response.Content.ReadFromJsonAsync<Respuesta<object>>().Result;
+
+            await _jsRuntime.InvokeVoidAsync("AgregarCookie", llaveToken, oRespuesta.Data, 45);
+            Navegacion.NavigateTo("/", true);
+        }
+    }
+    protected override void OnInitialized()
+    {
+        if (!string.IsNullOrEmpty(appData.Token))
+        {
+            token = appData.Token;
+        }
+    }
+}
