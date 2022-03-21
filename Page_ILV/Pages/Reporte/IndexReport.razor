@@ -5,18 +5,23 @@
 @using System.Net.Http.Json;
 @inject HttpClient Http;
 @inject IJSRuntime _jsRuntime;
+@inject AppData appData
 
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-        <link rel="stylesheet" href="css/assets/bootstrap/css/bootstrap.min.css">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,400i,700,700i,600,600i">
-        <link rel="stylesheet" href="css/assets/fonts/simple-line-icons.min.css">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.css">
-        <link rel="stylesheet" href="css/assets/css/vanilla-zoom.min.css">
-        <link rel="stylesheet" href="css/assets/css/stilos.css">
-    </head>
-
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <link rel="stylesheet" href="css/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,400i,700,700i,600,600i">
+    <link rel="stylesheet" href="css/assets/fonts/simple-line-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.css">
+    <link rel="stylesheet" href="css/assets/css/vanilla-zoom.min.css">
+    <link rel="stylesheet" href="css/assets/css/stilos.css">
+</head>
+@if (msg != null)
+{
+    <p class="text-danger"><b><i>@msg</i></b></p> }
+else
+{
     <img src="css/Img/FallaX.png" height="200" width="500" />
 
     <section class="p-3">
@@ -66,16 +71,22 @@
             </tbody>
         </table>
     </div>
+}
 
-    @code {
-        public string Url = "/api/Reporte";
+@code {
+    public string token { get; set; }
+    public string msg { get; set; }
+    UsuarioRequest oRegistro = new UsuarioRequest();
+    FotoRequest oFoto = new FotoRequest();
+    Respuesta<UsuarioRequest> oRespuestaRegistro = new Respuesta<UsuarioRequest>();
+    public string Url_usuario = "/api/Usuario/verify?key=";
 
-        public Respuesta<List<ReporteRequest>> oRespuesta = new Respuesta<List<ReporteRequest>>();
+    public string Url = "/api/Reporte";
+    public Respuesta<List<ReporteRequest>> oRespuesta = new Respuesta<List<ReporteRequest>>();
 
-        protected override async Task OnInitializedAsync() =>
-        oRespuesta = await Http.GetFromJsonAsync<Respuesta<List<ReporteRequest>>>(Url);
-
-        protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (oRespuestaRegistro.Data != null)
         {
             if (firstRender)
             {
@@ -83,3 +94,27 @@
             }
         }
     }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrEmpty(appData.Token))
+        {
+            token = appData.Token;
+            oRespuestaRegistro = await Http.GetFromJsonAsync<Respuesta<UsuarioRequest>>(Url_usuario + token);
+            oRegistro = oRespuestaRegistro.Data;
+            oFoto = oRegistro.FotoRequest;
+
+            if (oRegistro != null)
+            {
+                oRespuesta = await Http.GetFromJsonAsync<Respuesta<List<ReporteRequest>>>(Url);
+            }
+            else
+            {
+                msg = oRespuestaRegistro.Mensaje;
+            }
+        }else
+        {
+            msg = "No se ha iniciado una sesion, porfavor inicie sesion e intente de nuevo";
+        }
+    }
+}

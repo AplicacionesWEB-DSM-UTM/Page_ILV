@@ -1,5 +1,11 @@
 ﻿@page "/perfil"
 
+@using Page_ILV.Data;
+@using System.Net.Http;
+@using System.Net.Http.Json;
+@inject HttpClient Http;
+@inject AppData appData
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
@@ -11,59 +17,97 @@
     <link rel="stylesheet" href="css/assets/css/stilos.css">
 
 </head>
+@if (msg != null)
+{
+    <p class="text-danger"><b><i>@msg</i></b></p> }
+else
+{
+    <body>
+        <header class="text-center text-white masthead" style="background: url('Img/Oscuridad-.gif')no-repeat center center; background-size: cover; height: 380px; "> </header>
+        <br />
+        <section class="clean-block clean-info dark">
+            <div class="container">
+                <div class="block-heading">
+                    <h2 class="text-info">Información de la cuenta</h2>
+                    <p>¿Te gustaria cambiar algo? da clic en editar!.</p>
+                </div>
 
-<body>
-    <header class="text-center text-white masthead" style="background: url('Img/Oscuridad-.gif')no-repeat center center; background-size: cover; height: 380px; "> </header>
-    <br />
-    <section class="clean-block clean-info dark">
-        <div class="container">
-            <div class="block-heading">
-                <h2 class="text-info">Información de la cuenta</h2>
-                <p>¿Te gustaria cambiar algo? da clic en editar!.</p>
-            </div>
-
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <h3>Tu informacion personal</h3>
-                    <div class="getting-started-info">
-                        <p>Puedes editar tus datos dando clic en el boton.</p>
-                        <h4>Nombre:</h4>
-                        <h5>Rafael</h5>
-                        <h4>Apellidos:</h4>
-                        <h5>Cauich Colli</h5>
-                        <h4>Correo:</h4>
-                        <h5>xxrafaflooxx@gmail.com</h5>
-                        <h4>Pass:</h4>
-                        <h5><input type="password"></h5>
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h3>Tu informacion personal</h3>
+                        <div class="getting-started-info">
+                            <p>Puedes editar tus datos dando clic en el boton.</p>
+                            <h4>Nombre:</h4>
+                            <h5>@oRegistro.Nombre</h5>
+                            <h4>Apellido:</h4>
+                            <h5>@oRegistro.Apellido</h5>
+                            <h4>Correo:</h4>
+                            <h5>@oRegistro.Correo</h5>
+                        </div>
+                        <a href="/nuevo-registro/@oRegistro.IdUsuario" class="btn btn-outline-primary btn-lg" type="button">Editar mis datos</a>
                     </div>
-                    <a href="/detalles-registro/{id:int}" class="btn btn-outline-primary btn-lg" type="button">Editar mis datos</a>
+                    <div class="col-md-6">
+                        <a href="@oFoto.Url">
+                            <img src="/Img/usr/@oFoto.Nombre" alt="@oFoto.Nombre" class="img-thumbnail" style="height:65%;width:65%;" />
+                        </a>
+                    </div>
                 </div>
-                <div class="col-md-6"><img class="img-thumbnail" src="css/Img/RF.png"></div>
-            </div>
 
-        </div>
-    </section>
+            </div>
+        </section>
 
-    <section class="clean-block features">
-        <div class="container">
-            <div class="block-heading">
-                <h2 class="text-info">Detalles</h2>
-                <p>Informacion sobre el manejo de cuentas en esta pagina.</p>
-            </div>
-            <div class="row justify-content-center">
-                <div class="col-md-5 feature-box">
-                    <i class="icon-star icon"></i>
-                    <h4>Tu informacion esta asegurada</h4>
-                    <p>Esta en nuestra base de datos bien resguardada y puedes editarla y/o elminiarla cuando gustes.</p>
-                    <a href="/detalles-registro/{id:int}" class="btn btn-outline-primary btn-lg" type="button">Editar mis datos</a>
+        <section class="clean-block features">
+            <div class="container">
+                <div class="block-heading">
+                    <h2 class="text-info">Detalles</h2>
+                    <p>Informacion sobre el manejo de cuentas en esta pagina.</p>
                 </div>
-                <div class="col-md-5 feature-box">
-                    <i class="icon-pencil icon"></i>
-                    <h4>Consulta la informacion de tus reportes.</h4>
-                    <p>Puedes consultar tus reportes aqui.</p>
-                    <a href="/report" class="btn btn-outline-primary btn-lg" type="button">Ver mis reportes</a>
+                <div class="row justify-content-center">
+                    <div class="col-md-5 feature-box">
+                        <i class="icon-star icon"></i>
+                        <h4>Tu informacion esta asegurada</h4>
+                        <p>Esta en nuestra base de datos bien resguardada y puedes editarla y/o elminiarla cuando gustes.</p>
+                        <a href="/nuevo-registro/@oRegistro.IdUsuario" class="btn btn-outline-primary btn-lg" type="button">Editar mis datos</a>
+                    </div>
+                    <div class="col-md-5 feature-box">
+                        <i class="icon-pencil icon"></i>
+                        <h4>Consulta la informacion de tus reportes.</h4>
+                        <p>Puedes consultar tus reportes aqui.</p>
+                        <a href="/report" class="btn btn-outline-primary btn-lg" type="button">Ver mis reportes</a>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
-</body>
+        </section>
+    </body>
+}
+
+    @code {
+public string token { get; set; }
+    public string msg { get; set; }
+    UsuarioRequest oRegistro = new UsuarioRequest();
+    FotoRequest oFoto = new FotoRequest();
+    Respuesta<object> oRespuesta = new Respuesta<object>();
+    Respuesta<UsuarioRequest> oRespuestaRegistro = new Respuesta<UsuarioRequest>();
+
+    public string Url = "/api/Usuario/verify?key=";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrEmpty(appData.Token))
+        {
+            token = appData.Token;
+            oRespuestaRegistro = await Http.GetFromJsonAsync<Respuesta<UsuarioRequest>>(Url + token);
+            oRegistro = oRespuestaRegistro.Data;
+            oFoto = oRegistro.FotoRequest;
+
+            if (oRegistro == null)
+            {
+                msg = oRespuestaRegistro.Mensaje;
+            }
+        }
+        else
+        {
+            msg = "No se ha iniciado una sesion, porfavor inicie sesion e intente de nuevo";
+        }
+    }
+    }

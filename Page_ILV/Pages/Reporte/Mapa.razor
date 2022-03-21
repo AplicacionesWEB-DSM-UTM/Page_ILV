@@ -1,0 +1,83 @@
+﻿@page "/mapa"
+
+@using System.Net.Http;
+@using Page_ILV.Data;
+@using System.Net.Http.Json;
+@inject HttpClient Http;
+@inject IJSRuntime _jsRuntime;
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+        <link rel="stylesheet" href="css/assets/bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,400i,700,700i,600,600i">
+        <link rel="stylesheet" href="css/assets/fonts/simple-line-icons.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.css">
+        <link rel="stylesheet" href="css/assets/css/vanilla-zoom.min.css">
+        <link rel="stylesheet" href="css/assets/css/stilos.css">
+    </head>
+
+    <img src="css/Img/FallaX.png" height="200" width="500" />
+
+    <section class="p-3">
+        <div class="img-thumbnail" id="getmap" style="height:500px;width:100%;"></div>
+    </section>
+
+    <div class="p-3">
+        <div class="text-right">
+            <a href="nuevo-report" class="btn btn-outline-primary m-1">Nuevo</a>
+        </div>
+        <table class="table table-light table-striped">
+            <thead class="table-warning text-dark">
+                <tr>
+                    <td>#</td>
+                    <td>Foto</td>
+                    <td>Descripcion</td>
+                    <td>Fecha</td>
+                    <td>Etiquetas</td>
+                    <td>Usuario</td>
+                    <th>Opciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (oRespuesta != null && oRespuesta.Data != null)
+                {
+                    @foreach (var oElemento in (List<ReporteRequest>)oRespuesta.Data)
+                    {
+                        <tr>
+                            <td>@oElemento.IdReporte</td>
+                            <td>
+                                <a href="@oElemento.FotoRequest.Url">
+                                    <img src="@oElemento.FotoRequest.Url" alt="@oElemento.FotoRequest.Nombre" class="img-fluid img-not" style="height:5rem;width:5rem;" />
+                                </a>
+                            </td>
+                            <td>@oElemento.Descripcion</td>
+                            <td>@oElemento.Fecha.Value.ToString("dd/MMMM/yyyy")</td>
+                            <td>@oElemento.EtiquetaRequest.Nombre</td>
+                            <td>@oElemento.UsuarioRequest.Correo</td>
+                            <td>
+                                <a href="/DetallesReport/@oElemento.IdReporte" class="btn btn-outline-primary m-1">Detalles</a>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @code {
+        public string Url = "/api/Reporte";
+
+        public Respuesta<List<ReporteRequest>> oRespuesta = new Respuesta<List<ReporteRequest>>();
+
+        protected override async Task OnInitializedAsync() =>
+        oRespuesta = await Http.GetFromJsonAsync<Respuesta<List<ReporteRequest>>>(Url);
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender)
+            {
+                await _jsRuntime.InvokeVoidAsync("getMap", oRespuesta.Data.ToList());
+            }
+        }
+    }

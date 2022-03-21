@@ -3,58 +3,93 @@
 @using Page_ILV.Data;
 @using System.Net.Http.Json;
 @inject HttpClient Http;
+@inject AppData appData
 
-<div>
-    <img src="css/Img/Nuevo Usuario.png" height="200" width="450" />
-</div>
+@if (msg != null)
+{
+    <p class="text-danger"><b><i>@msg</i></b></p> }
+else
+{
 
-<div class="p-3">
-    <div class="text-right">
-        <a href="nuevo-registro" class="btn btn-outline-primary m-1">Nuevo</a>
+    <div>
+        <img src="css/Img/Nuevo Usuario.png" height="200" width="450" />
     </div>
-    <table class="table table-light table-striped">
-        <thead class="table-warning text-dark">
-            <tr>
-                <td>#</td>
-                <td>Foto</td>
-                <td>Nombre</td>
-                <td>Apellidos</td>
-                <td>Correo</td>
-                <th>Opciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (oRespuesta != null && oRespuesta.Data != null)
-            {
-                @foreach (var oElemento in (List<UsuarioRequest>)oRespuesta.Data)
+
+    <div class="p-3">
+        <div class="text-right">
+            <a href="nuevo-registro" class="btn btn-outline-primary m-1">Nuevo</a>
+        </div>
+        <table class="table table-light table-striped">
+            <thead class="table-warning text-dark">
+                <tr>
+                    <td>#</td>
+                    <td>Foto</td>
+                    <td>Nombre</td>
+                    <td>Apellidos</td>
+                    <td>Correo</td>
+                    <th>Opciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (oRespuesta != null && oRespuesta.Data != null)
                 {
-                    <tr>
-                        <td>@oElemento.IdUsuario</td>
-                        <td>
-                            <a href="@oElemento.FotoRequest.Url">
-                                <img src="@oElemento.FotoRequest.Url" alt="@oElemento.FotoRequest.Nombre" class="img-fluid img-not" style="height:5rem;width:5rem;" />
-                            </a>
-                        </td>
-                        <td>@oElemento.Nombre</td>
-                        <td>@oElemento.Apellido</td>
-                        <td>@oElemento.Correo</td>
-                        <td>
-                            <a href="/detalles-registro/@oElemento.IdUsuario" class="btn btn-outline-primary m-1">Detalles</a>
-                            <a href="/nuevo-registro/@oElemento.IdUsuario" class="btn btn-outline-secondary m-1">Editar</a>
-                            <a href="/eliminar-registro/@oElemento.IdUsuario" class="btn btn-outline-danger m-1">Eliminar</a>
-                        </td>
-                    </tr>
+                    @foreach (var oElemento in (List<UsuarioRequest>)oRespuesta.Data)
+                    {
+                        <tr>
+                            <td>@oElemento.IdUsuario</td>
+                            <td>
+                                <a href="@oElemento.FotoRequest.Url">
+                                    <img src="@oElemento.FotoRequest.Url" alt="@oElemento.FotoRequest.Nombre" class="img-fluid img-not" style="height:5rem;width:5rem;" />
+                                </a>
+                            </td>
+                            <td>@oElemento.Nombre</td>
+                            <td>@oElemento.Apellido</td>
+                            <td>@oElemento.Correo</td>
+                            <td>
+                                <a href="/detalles-registro/@oElemento.IdUsuario" class="btn btn-outline-primary m-1">Detalles</a>
+                                <a href="/nuevo-registro/@oElemento.IdUsuario" class="btn btn-outline-secondary m-1">Editar</a>
+                                <a href="/eliminar-registro/@oElemento.IdUsuario" class="btn btn-outline-danger m-1">Eliminar</a>
+                            </td>
+                        </tr>
+                    }
                 }
-            }
-        </tbody>
-    </table>
-</div>
+            </tbody>
+        </table>
+    </div>
+}
 
     @code {
-        public string Url = "/api/Usuario";
+public string token { get; set; }
+    public string msg { get; set; }
+    UsuarioRequest oRegistro = new UsuarioRequest();
+    FotoRequest oFoto = new FotoRequest();
+    Respuesta<UsuarioRequest> oRespuestaRegistro = new Respuesta<UsuarioRequest>();
+    public string Url_usuario = "/api/Usuario/verify?key=";
 
-        public Respuesta<List<UsuarioRequest>> oRespuesta = new Respuesta<List<UsuarioRequest>>();
+    public string Url = "/api/Usuario";
+    public Respuesta<List<UsuarioRequest>> oRespuesta = new Respuesta<List<UsuarioRequest>>();
 
-        protected override async Task OnInitializedAsync() =>
-        oRespuesta = await Http.GetFromJsonAsync<Respuesta<List<UsuarioRequest>>>(Url);
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrEmpty(appData.Token))
+        {
+            token = appData.Token;
+            oRespuestaRegistro = await Http.GetFromJsonAsync<Respuesta<UsuarioRequest>>(Url_usuario + token);
+            oRegistro = oRespuestaRegistro.Data;
+            oFoto = oRegistro.FotoRequest;
+
+            if (oRegistro != null)
+            {
+                oRespuesta = await Http.GetFromJsonAsync<Respuesta<List<UsuarioRequest>>>(Url);
+            }
+            else
+            {
+                msg = oRespuestaRegistro.Mensaje;
+            }
+        }
+        else
+        {
+            msg = "No se ha iniciado una sesion, porfavor inicie sesion e intente de nuevo";
+        }
+    }
     }
