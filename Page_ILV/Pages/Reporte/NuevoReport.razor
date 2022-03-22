@@ -51,20 +51,6 @@ else
                         </div>
                     </div>
                     <div class="form-group row mb-1">
-                        <label class="col-sm-3">Usuario</label>
-                        <div class="col-sm-9">
-                            <InputSelect class="form-control" @bind-Value="@id_usuario">
-                                @if (oUsuario != null && oUsuario.Data != null)
-                                    {
-                                    @foreach (var oElemento in (List<UsuarioRequest>)oUsuario.Data)
-                                        {
-                                        <option value="@oElemento.IdUsuario.ToString()">@oElemento.Correo</option>
-                                        }
-                                    }
-                            </InputSelect>
-                        </div>
-                    </div>
-                    <div class="form-group row mb-1">
                         <label class="col-sm-3">Etiqueta</label>
                         <div class="col-sm-9">
                             <InputSelect class="form-control" @bind-Value="@id_etiqueta">
@@ -108,11 +94,8 @@ else
     Respuesta<UsuarioRequest> oRespuestaRegistro = new Respuesta<UsuarioRequest>();
     public string Url_usuario = "/api/Usuario/verify?key=";
 
-    [Parameter]
-    public string id_usuario { get; set; }
     public string id_etiqueta { get; set; }
 
-    Respuesta<List<UsuarioRequest>> oUsuario = new Respuesta<List<UsuarioRequest>>();
     Respuesta<List<EtiquetaRequest>> oEtiqueta = new Respuesta<List<EtiquetaRequest>>();
 
     ReporteRequest oReport = new ReporteRequest();
@@ -120,7 +103,6 @@ else
     Respuesta<ReporteRequest> oRespuestaReport = new Respuesta<ReporteRequest>();
 
     public string Url = "/api/Reporte";
-    public string Url_Usuario = "/api/Usuario";
     public string Url_Etiqueta = "/api/Etiqueta";
 
     private void Cancelar() => Navegacion.NavigateTo("/");
@@ -129,7 +111,7 @@ else
     {
         if (oReport.Descripcion != null && oReport.NombreFoto != null && oReport.Descripcion != string.Empty && oReport.NombreFoto != string.Empty)
         {
-            oReport.IdUsuario = Convert.ToInt32(id_usuario);
+            oReport.IdUsuario = oRegistro.IdUsuario;
             oReport.IdEtiqueta = Convert.ToInt32(id_etiqueta);
             oReport.FotoRequest = new FotoRequest()
             {
@@ -159,10 +141,7 @@ else
 
             if (oRegistro != null)
             {
-                oUsuario = await Http.GetFromJsonAsync<Respuesta<List<UsuarioRequest>>>(Url_Usuario);
                 oEtiqueta = await Http.GetFromJsonAsync<Respuesta<List<EtiquetaRequest>>>(Url_Etiqueta);
-
-                id_usuario = oUsuario.Data.First().IdUsuario.ToString();
                 id_etiqueta = oEtiqueta.Data.First().IdEtiqueta.ToString();
             }
             else

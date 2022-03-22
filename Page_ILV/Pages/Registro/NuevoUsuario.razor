@@ -1,5 +1,4 @@
 ﻿@page "/nuevo-registro"
-@page "/nuevo-registro/{id:int}"
 
 @using Page_ILV.Data;
 @using System.Net.Http;
@@ -70,8 +69,6 @@
     </div>
 </section>
     @code {
-        [Parameter]
-        public int id { get; set; }
         UsuarioRequest oRegistro = new UsuarioRequest();
         Respuesta<object> oRespuesta = new Respuesta<object>();
         Respuesta<UsuarioRequest> oRespuestaRegistro = new Respuesta<UsuarioRequest>();
@@ -92,35 +89,16 @@
                         Url = "https://localhost:44315/Img/usr/" + oRegistro.NombreFoto
                     };
 
-                    if (id != 0)
-                    {
-                        oRegistro.FotoRequest.IdFoto = oRegistro.IdFoto;
-                        var response = await Http.PutAsJsonAsync<UsuarioRequest>(Url, oRegistro);
-                        oRespuesta = response.Content.ReadFromJsonAsync<Respuesta<object>>().Result;
-                        Navegacion.NavigateTo("/registro");
-                    }
-                    else
-                    {
-                        var response = await Http.PostAsJsonAsync<UsuarioRequest>(Url, oRegistro);
-                        oRespuesta = response.Content.ReadFromJsonAsync<Respuesta<object>>().Result;
-                        Navegacion.NavigateTo("/registro");
-                    }
+                    var response = await Http.PostAsJsonAsync<UsuarioRequest>(Url, oRegistro);
+                    oRespuesta = response.Content.ReadFromJsonAsync<Respuesta<object>>().Result;
+                    Navegacion.NavigateTo("/registro");
                 }
             }
         }
 
         protected override async Task OnInitializedAsync()
         {
-            if (id != 0)
-            {
-                oRespuestaRegistro = await Http.GetFromJsonAsync<Respuesta<UsuarioRequest>>(Url + "/" + id);
-                oRegistro = oRespuestaRegistro.Data;
-                oRegistro.NombreFoto = oRegistro.FotoRequest.Nombre;
-            }
-            else
-            {
-                oRegistro.NombreFoto = "not-found.png";
-            }
+            oRegistro.NombreFoto = "not-found.png";
         }
     }
 

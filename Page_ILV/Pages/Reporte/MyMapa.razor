@@ -1,0 +1,124 @@
+﻿@page "/mi-mapa"
+
+@using System.Net.Http;
+@using Page_ILV.Data;
+@using System.Net.Http.Json;
+@inject HttpClient Http;
+@inject IJSRuntime _jsRuntime;
+@inject AppData appData
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <link rel="stylesheet" href="css/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,400i,700,700i,600,600i">
+    <link rel="stylesheet" href="css/assets/fonts/simple-line-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.css">
+    <link rel="stylesheet" href="css/assets/css/vanilla-zoom.min.css">
+    <link rel="stylesheet" href="css/assets/css/stilos.css">
+</head>
+
+@if (msg != null)
+{
+    <p class="text-danger"><b><i>@msg</i></b></p> }
+else
+{
+    <img src="css/Img/FallaX.png" height="200" width="500" />
+
+    <section class="p-3">
+        <div class="img-thumbnail" id="getmap" style="height:500px;width:100%;"></div>
+    </section>
+
+    <div class="p-3">
+        <div class="text-right">
+            <a href="nuevo-report" class="btn btn-outline-primary m-1">Nuevo</a>
+        </div>
+        <table class="table table-light table-striped">
+            <thead class="table-warning text-dark">
+                <tr>
+                    <td>#</td>
+                    <td>Foto</td>
+                    <td>Descripcion</td>
+                    <td>Fecha</td>
+                    <td>Etiquetas</td>
+                    <td>Usuario</td>
+                    <th>Opciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (oRespuesta != null && oRespuesta != null)
+                {
+                    @foreach (var oElemento in (List<ReporteRequest>)oRespuesta)
+                    {
+                        <tr>
+                            <td>@oElemento.IdReporte</td>
+                            <td>
+                                <a href="@oElemento.FotoRequest.Url">
+                                    <img src="@oElemento.FotoRequest.Url" alt="@oElemento.FotoRequest.Nombre" class="img-fluid img-not" style="height:5rem;width:5rem;" />
+                                </a>
+                            </td>
+                            <td>@oElemento.Descripcion</td>
+                            <td>@oElemento.Fecha.Value.ToString("dd/MMMM/yyyy")</td>
+                            <td>@oElemento.EtiquetaRequest.Nombre</td>
+                            <td>@oElemento.UsuarioRequest.Correo</td>
+                            <td>
+                                <a href="/DetallesReport/@oElemento.IdReporte" class="btn btn-outline-primary m-1">Detalles</a>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+    @code {
+        public string token { get; set; }
+        public string msg { get; set; }
+        UsuarioRequest oRegistro = new UsuarioRequest();
+        FotoRequest oFoto = new FotoRequest();
+        Respuesta<UsuarioRequest> oRespuestaRegistro = new Respuesta<UsuarioRequest>();
+        public string Url_usuario = "/api/Usuario/verify?key=";
+
+        public string Url = "/api/Reporte";
+
+        public List<ReporteRequest> oRespuesta = new List<ReporteRequest>();
+
+        protected override async Task OnInitializedAsync()
+        {
+            if (!string.IsNullOrEmpty(appData.Token))
+            {
+                token = appData.Token;
+                oRespuestaRegistro = await Http.GetFromJsonAsync<Respuesta<UsuarioRequest>>(Url_usuario + token);
+                oRegistro = oRespuestaRegistro.Data;
+                oFoto = oRegistro.FotoRequest;
+
+                if (oRegistro != null)
+                {
+                    var respuesta = await Http.GetFromJsonAsync<Respuesta<List<ReporteRequest>>>(Url);
+                    oRespuesta = respuesta.Data.Where(x => x.IdUsuario == oRegistro.IdUsuario).ToList();
+                }
+                else
+                {
+                    msg = oRespuestaRegistro.Mensaje;
+                }
+            }
+            else
+            {
+                msg = "No se ha iniciado una sesion, porfavor inicie sesion e intente de nuevo";
+            }
+        }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            token = appData.Token;
+            var respuestaRegistro = await Http.GetFromJsonAsync<Respuesta<UsuarioRequest>>(Url_usuario + token);
+            var registro = respuestaRegistro.Data;
+
+            var respuesta = await Http.GetFromJsonAsync<Respuesta<List<ReporteRequest>>>(Url);
+            if (firstRender && respuesta.Data != null && respuestaRegistro.Data != null)
+            {
+                await _jsRuntime.InvokeVoidAsync("getMap", respuesta.Data.Where(x => x.IdUsuario == registro.IdUsuario).ToList());
+            }
+        }
+    }

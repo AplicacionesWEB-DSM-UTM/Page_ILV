@@ -122,7 +122,7 @@ else
     public string Url_Usuario = "/api/Usuario";
     public string Url_Etiqueta = "/api/Etiqueta";
 
-    private void Cancelar() => Navegacion.NavigateTo("/");
+    private void Cancelar() => Navegacion.NavigateTo("/report");
 
     private async Task Guardar()
     {
@@ -147,7 +147,7 @@ else
             {
                 var response = await Http.PutAsJsonAsync<ReporteRequest>(Url, oReport);
                 oRespuesta = response.Content.ReadFromJsonAsync<Respuesta<object>>().Result;
-                Navegacion.NavigateTo("/");
+                Navegacion.NavigateTo("/report");
             }
         }
     }
@@ -195,9 +195,10 @@ else
     {
         if (oRespuestaRegistro.Data != null)
         {
-            if (firstRender && oRespuestaReport.Data != null)
+            var respuesta = await Http.GetFromJsonAsync<Respuesta<ReporteRequest>>(Url + "/" + id);
+            if (firstRender && respuesta.Data != null)
             {
-                await _jsRuntime.InvokeVoidAsync("editMap", oRespuestaReport.Data);
+                await _jsRuntime.InvokeVoidAsync("editMap", respuesta.Data);
             }
         }
     }

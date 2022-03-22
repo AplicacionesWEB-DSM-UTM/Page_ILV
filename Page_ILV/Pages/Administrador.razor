@@ -1,0 +1,129 @@
+@page "/admin"
+
+@using Page_ILV.Data;
+@using System.Net.Http;
+@using System.Net.Http.Json;
+@inject HttpClient Http;
+@inject AppData appData
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <link rel="stylesheet" href="css/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,400i,700,700i,600,600i">
+    <link rel="stylesheet" href="css/assets/fonts/simple-line-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.css">
+    <link rel="stylesheet" href="css/assets/css/vanilla-zoom.min.css">
+    <link rel="stylesheet" href="css/assets/css/stilos.css">
+
+</head>
+@if (msg != null)
+{
+    <p class="text-danger"><b><i>@msg</i></b></p> }
+else
+{
+    <body>
+        <header class="text-center text-white masthead" style="background: url('css/img/Banner5.jpg')no-repeat center center; background-size: cover; height: 380px; "> </header>
+        <br />
+        <section class="clean-block features">
+            <div class="container">
+                <div class="block-heading">
+                    <h1 class="text-info">Funciones de adminstrador</h1>
+                    <p>Aquí tienes los accesos a las paginas que solo los administradores pueden ver.</p>
+                </div>
+                <div class="row align-items-center">
+                    <div class="col-md-6"><img class="img-thumbnail" src="css/Img/Users2.gif"></div>
+                    <div class="col-md-6">
+                        <h3>Acceso a la página principal de reportes</h3>
+                        <div class="getting-started-info">
+                            <p>Aquí tienes el acceso a todos los reportes credos por los usuarios, podrás consultar su información, editarla y en caso de ser necesario, eliminarla.</p>
+                        </div>
+                        <a href="/report" class="btn btn-outline-primary btn-lg" type="button">Visitar</a>
+                    </div>
+                </div>
+
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h3>Consulta la totalidad de usuarios</h3>
+                        <div class="getting-started-info">
+                            <p>Aquí podrás ver a todos los usuarios registrados que hay, consultar su información, editarla y si lo consideras necesario... eliminarlos.</p>
+                        </div>
+                        <a href="/registro" class="btn btn-outline-primary btn-lg" type="button">Visitar</a>
+                    </div>
+                    <div class="col-md-6"><img class="img-thumbnail" src="css/Img/Users.gif"></div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="page-footer dark">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-3">
+                        <h5>Procedimientos iniciales</h5>
+                        <ul>
+                            <li><a href="#">Inicio</a></li>
+                            <li><a href="/nuevo-registro">Registrarse</a></li>
+                            <li><a href="/login">Iniciar Sesión</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-3">
+                        <h5>Información</h5>
+                        <ul>
+                            <li><a href="/about">Información del proyecto</a></li>
+                            <li><a href="https://www.facebook.com/MemesDeLaFederal4">Contactanos</a></li>
+                            <li><a href="/reporte">Reportes</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-3">
+                        <h5>Soporte</h5>
+                        <ul>
+                            <li><a href="#">FAQ</a></li>
+                            <li><a href="#">Help desk</a></li>
+                            <li><a href="#">Forums</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-3">
+                        <h5>Acciones</h5>
+                        <ul>
+                            <li><a href="/nuevo-reporte">Reportar</a></li>
+                            <li><a href="/reporte">Consultar reportes</a></li>
+                            <li><a href="/counter">Contador de clics</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="Iluminamelavida-copyright">
+                <p>© 2022 Copyright Text</p>
+            </div>
+        </footer>
+    </body>
+}
+
+@code{
+    public string token { get; set; }
+    public string msg { get; set; }
+    UsuarioRequest oRegistro = new UsuarioRequest();
+    FotoRequest oFoto = new FotoRequest();
+    Respuesta<UsuarioRequest> oRespuestaRegistro = new Respuesta<UsuarioRequest>();
+    public string Url_usuario = "/api/Usuario/verify?key=";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrEmpty(appData.Token))
+        {
+            token = appData.Token;
+            oRespuestaRegistro = await Http.GetFromJsonAsync<Respuesta<UsuarioRequest>>(Url_usuario + token);
+            oRegistro = oRespuestaRegistro.Data;
+            oFoto = oRegistro.FotoRequest;
+
+            if (oRegistro == null)
+            {
+                msg = oRespuestaRegistro.Mensaje;
+            }
+        }
+        else
+        {
+            msg = "No se ha iniciado una sesion, porfavor inicie sesion e intente de nuevo";
+        }
+    }
+}

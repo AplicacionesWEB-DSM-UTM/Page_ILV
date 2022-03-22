@@ -77,9 +77,10 @@
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            if (firstRender)
+            var respuesta = await Http.GetFromJsonAsync<Respuesta<ReporteRequest>>(Url + "/" + id);
+            if (firstRender && respuesta.Data != null)
             {
-                await _jsRuntime.InvokeVoidAsync("getByIdMap", oReport);
+                await _jsRuntime.InvokeVoidAsync("getByIdMap", respuesta.Data);
             }
         }
     }

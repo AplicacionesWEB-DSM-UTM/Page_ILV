@@ -84,7 +84,7 @@ else
 
     public string Url = "/api/Reporte";
 
-    private void Cancelar() => Navegacion.NavigateTo("/");
+    private void Cancelar() => Navegacion.NavigateTo("/report");
 
     private async Task Eliminar()
     {
@@ -129,9 +129,10 @@ else
     {
         if (oRespuestaRegistro.Data != null)
         {
-            if (firstRender && oRespuestaReport.Data != null)
+            var respuesta = await Http.GetFromJsonAsync<Respuesta<ReporteRequest>>(Url + "/" + id);
+            if (firstRender && respuesta.Data != null)
             {
-                await _jsRuntime.InvokeVoidAsync("getByIdMap", oRespuestaReport.Data);
+                await _jsRuntime.InvokeVoidAsync("getByIdMap", respuesta.Data);
             }
         }
     }

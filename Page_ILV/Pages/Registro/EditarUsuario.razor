@@ -1,0 +1,148 @@
+﻿@page "/editar-registro/{id:int}"
+
+@using Page_ILV.Data;
+@using System.Net.Http;
+@using System.Net.Http.Json;
+@inject HttpClient Http;
+@inject NavigationManager Navegacion;
+    @inject AppData appData
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <link rel="stylesheet" href="css/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,400i,700,700i,600,600i">
+    <link rel="stylesheet" href="css/assets/fonts/simple-line-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.css">
+    <link rel="stylesheet" href="css/assets/css/vanilla-zoom.min.css">
+    <link rel="stylesheet" href="css/assets/css/stilos.css">
+</head>
+@if (msg != null)
+{
+<p class="text-danger"><b><i>@msg</i></b></p> }
+else
+{
+    <header class="text-center text-white masthead" style="background: url('css/img/Banner4.jpg')no-repeat center center; background-size: cover; height: 393px; ">
+    </header>
+
+    <section class="clean-block clean-info dark m-3 py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <EditForm Model="registro">
+                    <DataAnnotationsValidator />
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-3">Foto</label>
+                        <div class="col-sm-9">
+                            <InputText class="form-control" @bind-Value="@registro.NombreFoto"></InputText>
+                            <ValidationMessage For="(() => registro.NombreFoto)" />
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-3">Nombre</label>
+                        <div class="col-sm-9">
+                            <InputText class="form-control" @bind-Value="@registro.Nombre"></InputText>
+                            <ValidationMessage For="(() => registro.Nombre)" />
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-3">Apellidos</label>
+                        <div class="col-sm-9">
+                            <InputText class="form-control" @bind-Value="@registro.Apellido"></InputText>
+                            <ValidationMessage For="(() => registro.Apellido)" />
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-3">Correo</label>
+                        <div class="col-sm-9">
+                            <InputText type="email" class="form-control" @bind-Value="@registro.Correo"></InputText>
+                            <ValidationMessage For="(() => registro.Correo)" />
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-3">Contraseña</label>
+                        <div class="col-sm-9">
+                            <InputText type="password" class="form-control" @bind-Value="@registro.Password"></InputText>
+                            <ValidationMessage For="(() => registro.Password)" />
+                        </div>
+                    </div>
+                    <div class="mb-1">
+                        <button class="btn btn-outline-primary m1" @onclick="Guardar">Guadar</button>
+                        <button class="btn btn-outline-danger m1" @onclick="Cancelar">Cancelar</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </section>
+}
+@code {
+
+    public string token { get; set; }
+    public string msg { get; set; }
+    UsuarioRequest oRegistro = new UsuarioRequest();
+    FotoRequest oFoto = new FotoRequest();
+    Respuesta<UsuarioRequest> oRespuestaRegistro = new Respuesta<UsuarioRequest>();
+    public string Url_usuario = "/api/Usuario/verify?key=";
+
+    [Parameter]
+    public int id { get; set; }
+    UsuarioRequest registro = new UsuarioRequest();
+    Respuesta<object> respuesta = new Respuesta<object>();
+    Respuesta<UsuarioRequest> respuestaRegistro = new Respuesta<UsuarioRequest>();
+
+    public string Url = "/api/Usuario";
+
+    private void Cancelar() => Navegacion.NavigateTo("/registro");
+
+    private async Task Guardar()
+    {
+        if (registro.Nombre != null && registro.Apellido != null && registro.Correo != null && registro.Password != null && registro.NombreFoto != null)
+        {
+            if (registro.Nombre != string.Empty && registro.Apellido != string.Empty && registro.Correo != string.Empty && registro.Password != string.Empty && registro.NombreFoto != string.Empty)
+            {
+                registro.FotoRequest = new FotoRequest()
+                {
+                    Nombre = registro.NombreFoto,
+                    Url = "https://localhost:44315/Img/usr/" + registro.NombreFoto
+                };
+
+                if (id != 0)
+                {
+                    registro.FotoRequest.IdFoto = registro.IdFoto;
+                    var response = await Http.PutAsJsonAsync<UsuarioRequest>(Url, registro);
+                    respuesta = response.Content.ReadFromJsonAsync<Respuesta<object>>().Result;
+                    Navegacion.NavigateTo("/registro");
+                }
+            }
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrEmpty(appData.Token))
+        {
+            token = appData.Token;
+            oRespuestaRegistro = await Http.GetFromJsonAsync<Respuesta<UsuarioRequest>>(Url_usuario + token);
+            oRegistro = oRespuestaRegistro.Data;
+            oFoto = oRegistro.FotoRequest;
+
+            if (oRegistro != null)
+            {
+                if (id != 0)
+                {
+                    respuestaRegistro = await Http.GetFromJsonAsync<Respuesta<UsuarioRequest>>(Url + "/" + id);
+                    registro = respuestaRegistro.Data;
+                    registro.NombreFoto = registro.FotoRequest.Nombre;
+                }
+            }
+            else
+            {
+                msg = oRespuestaRegistro.Mensaje;
+            }
+        }
+        else
+        {
+            msg = "No se ha iniciado una sesion, porfavor inicie sesion e intente de nuevo";
+        }
+    }
+}
+
