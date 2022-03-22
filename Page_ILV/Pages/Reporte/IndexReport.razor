@@ -88,7 +88,8 @@ else
     {
         if (oRespuestaRegistro.Data != null)
         {
-            if (firstRender)
+            oRespuesta = await Http.GetFromJsonAsync<Respuesta<List<ReporteRequest>>>(Url);
+            if (firstRender && oRespuesta.Data != null)
             {
                 await _jsRuntime.InvokeVoidAsync("getMap", oRespuesta.Data.ToList());
             }

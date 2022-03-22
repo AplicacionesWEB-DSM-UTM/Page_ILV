@@ -81,8 +81,8 @@ else
     </body>
 }
 
-    @code {
-public string token { get; set; }
+@code {
+    public string token { get; set; }
     public string msg { get; set; }
     UsuarioRequest oRegistro = new UsuarioRequest();
     FotoRequest oFoto = new FotoRequest();
@@ -110,4 +110,4 @@ public string token { get; set; }
             msg = "No se ha iniciado una sesion, porfavor inicie sesion e intente de nuevo";
         }
     }
-    }
+}

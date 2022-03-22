@@ -75,7 +75,8 @@
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            if (firstRender)
+            oRespuesta = await Http.GetFromJsonAsync<Respuesta<List<ReporteRequest>>>(Url);
+            if (firstRender && oRespuesta.Data != null)
             {
                 await _jsRuntime.InvokeVoidAsync("getMap", oRespuesta.Data.ToList());
             }

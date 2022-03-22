@@ -4,6 +4,7 @@
 @using System.Net.Http.Json;
 @inject HttpClient Http;
 @inject NavigationManager Navegacion;
+@inject AppData appData
 
 <head>
     <meta charset="utf-8">
@@ -15,50 +16,80 @@
     <link rel="stylesheet" href="css/assets/css/vanilla-zoom.min.css">
     <link rel="stylesheet" href="css/assets/css/stilos.css">
 </head>
+@if (msg != null)
+{
+    <p class="text-danger"><b><i>@msg</i></b></p> }
+else
+{
+    <h1 class="p-3">Perfil de Usuario</h1>
 
-<h1 class="p-3">Perfil de Usuario</h1>
-
-<section class="clean-block clean-info dark m-3 py-5">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-md-6">
-                <a href="@oFoto.Url">
-                    <img src="/Img/usr/@oFoto.Nombre" alt="@oFoto.Nombre" class="img-thumbnail" style="height:65%;width:65%;" />
-                </a>
-            </div>
-            <div class="col-md-6">
-                <div class="getting-started-info">
-                    <p>Nombre: @oRegistro.Nombre</p>
-                    <p>Apellido: @oRegistro.Apellido</p>
-                    <p>Correo Electronico: @oRegistro.Correo</p>
+    <section class="clean-block clean-info dark m-3 py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <a href="@foto.Url">
+                        <img src="/Img/usr/@foto.Nombre" alt="@foto.Nombre" class="img-thumbnail" style="height:65%;width:65%;" />
+                    </a>
                 </div>
-                <div>
-                    <button class="btn btn-outline-danger btn-lg" @onclick="Cancelar">Cancelar</button>
+                <div class="col-md-6">
+                    <div class="getting-started-info">
+                        <p>Nombre: @registro.Nombre</p>
+                        <p>Apellido: @registro.Apellido</p>
+                        <p>Correo Electronico: @registro.Correo</p>
+                    </div>
+                    <div>
+                        <button class="btn btn-outline-danger btn-lg" @onclick="Cancelar">Cancelar</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
+}
 
 @code {
-    [Parameter]
-    public int id { get; set; }
+    public string token { get; set; }
+    public string msg { get; set; }
     UsuarioRequest oRegistro = new UsuarioRequest();
     FotoRequest oFoto = new FotoRequest();
-    Respuesta<object> oRespuesta = new Respuesta<object>();
     Respuesta<UsuarioRequest> oRespuestaRegistro = new Respuesta<UsuarioRequest>();
+    public string Url_usuario = "/api/Usuario/verify?key=";
 
+    [Parameter]
+    public int id { get; set; }
+    UsuarioRequest registro = new UsuarioRequest();
+    FotoRequest foto = new FotoRequest();
+    Respuesta<UsuarioRequest> respuestaRegistro = new Respuesta<UsuarioRequest>();
+    Respuesta<object> oRespuesta = new Respuesta<object>();
     public string Url = "/api/Usuario";
 
     private void Cancelar() => Navegacion.NavigateTo("/registro");
 
     protected override async Task OnInitializedAsync()
     {
-        if (id != 0)
+        if (!string.IsNullOrEmpty(appData.Token))
         {
-            oRespuestaRegistro = await Http.GetFromJsonAsync<Respuesta<UsuarioRequest>>(Url + "/" + id);
+            token = appData.Token;
+            oRespuestaRegistro = await Http.GetFromJsonAsync<Respuesta<UsuarioRequest>>(Url_usuario + token);
             oRegistro = oRespuestaRegistro.Data;
             oFoto = oRegistro.FotoRequest;
+
+            if (oRegistro != null)
+            {
+                if (id != 0)
+                {
+                    respuestaRegistro = await Http.GetFromJsonAsync<Respuesta<UsuarioRequest>>(Url + "/" + id);
+                    registro = respuestaRegistro.Data;
+                    foto = registro.FotoRequest;
+                }
+            }
+            else
+            {
+                msg = oRespuestaRegistro.Mensaje;
+            }
+        }
+        else
+        {
+            msg = "No se ha iniciado una sesion, porfavor inicie sesion e intente de nuevo";
         }
     }
 }

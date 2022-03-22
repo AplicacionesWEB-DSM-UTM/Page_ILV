@@ -6,6 +6,7 @@
 @inject HttpClient Http;
 @inject NavigationManager Navegacion;
 @inject IJSRuntime _jsRuntime;
+@inject AppData appData
 
 <head>
     <meta charset="utf-8">
@@ -18,45 +19,58 @@
     <link rel="stylesheet" href="css/assets/css/stilos.css">
 </head>
 
-<h1 class="p-3">Reporte #@oReport.IdReporte</h1>
+@if (msg != null)
+{
+    <p class="text-danger"><b><i>@msg</i></b></p> }
+else
+{
+    <h1 class="p-3">Reporte #@oReport.IdReporte</h1>
 
-<section class="p-3">
-    <div class="img-thumbnail" id="getbyidmap" style="height:500px;width:100%;"></div>
-</section>
+    <section class="p-3">
+        <div class="img-thumbnail" id="getbyidmap" style="height:500px;width:100%;"></div>
+    </section>
 
-<section class="clean-block clean-info dark m-3 py-5">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-md-6">
-                <a href="@oFoto.Url">
-                    <img src="/Img/usr/@oFoto.Nombre" alt="@oFoto.Nombre" class="img-thumbnail" style="height:65%;width:65%;" />
-                </a>
-            </div>
-            <div class="col-md-6">
-                <div class="getting-started-info">
-                    <p>Descripcion Del Reporte: @oReport.Descripcion</p>
-                    <p>Etiqueta: @oEtiqueta.Nombre</p>
-                    <p>Fecha De Creacion: @fecha</p>
-                    <p>Usuario: @oUsuario.Correo</p>
+    <section class="clean-block clean-info dark m-3 py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <a href="@oFoto.Url">
+                        <img src="/Img/usr/@oFoto.Nombre" alt="@oFoto.Nombre" class="img-thumbnail" style="height:65%;width:65%;" />
+                    </a>
                 </div>
-                <div>
-                    <div class="text-center">
-                        <p><b><i>¿Realmente deseas eliminar el reporte?</i></b></p>
+                <div class="col-md-6">
+                    <div class="getting-started-info">
+                        <p>Descripcion Del Reporte: @oReport.Descripcion</p>
+                        <p>Etiqueta: @oEtiqueta.Nombre</p>
+                        <p>Fecha De Creacion: @fecha</p>
+                        <p>Usuario: @oUsuario.Correo</p>
                     </div>
-                    <div class="text-center">
-                        <button @onclick="Eliminar" class="btn btn-outline-danger">Eliminar</button>
-                        <button @onclick="Cancelar" class="btn btn-outline-primary">Cancelar</button>
-                    </div>
-                    <div class="text-center">
-                        <p><i>La eliminación es definitiva y permantente, una vez realizada no puede ser revertida.</i></p>
+                    <div>
+                        <div class="text-center">
+                            <p><b><i>¿Realmente deseas eliminar el reporte?</i></b></p>
+                        </div>
+                        <div class="text-center">
+                            <button @onclick="Eliminar" class="btn btn-outline-danger">Eliminar</button>
+                            <button @onclick="Cancelar" class="btn btn-outline-primary">Cancelar</button>
+                        </div>
+                        <div class="text-center">
+                            <p><i>La eliminación es definitiva y permantente, una vez realizada no puede ser revertida.</i></p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
+}
 
 @code {
+    public string token { get; set; }
+    public string msg { get; set; }
+    UsuarioRequest oRegistro = new UsuarioRequest();
+    FotoRequest foto = new FotoRequest();
+    Respuesta<UsuarioRequest> oRespuestaRegistro = new Respuesta<UsuarioRequest>();
+    public string Url_usuario = "/api/Usuario/verify?key=";
+
     [Parameter]
     public int id { get; set; }
     public string fecha { get; set; }
@@ -81,22 +95,44 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (id != 0)
+        if (!string.IsNullOrEmpty(appData.Token))
         {
-            oRespuestaReport = await Http.GetFromJsonAsync<Respuesta<ReporteRequest>>(Url + "/" + id);
-            oReport = oRespuestaReport.Data;
-            oFoto = oReport.FotoRequest;
-            oEtiqueta = oReport.EtiquetaRequest;
-            oUsuario = oReport.UsuarioRequest;
-            fecha = oReport.Fecha.Value.ToString("dd/MMMM/yyyy");
+            token = appData.Token;
+            oRespuestaRegistro = await Http.GetFromJsonAsync<Respuesta<UsuarioRequest>>(Url_usuario + token);
+            oRegistro = oRespuestaRegistro.Data;
+            foto = oRegistro.FotoRequest;
+
+            if (oRegistro != null)
+            {
+                if (id != 0)
+                {
+                    oRespuestaReport = await Http.GetFromJsonAsync<Respuesta<ReporteRequest>>(Url + "/" + id);
+                    oReport = oRespuestaReport.Data;
+                    oFoto = oReport.FotoRequest;
+                    oEtiqueta = oReport.EtiquetaRequest;
+                    oUsuario = oReport.UsuarioRequest;
+                    fecha = oReport.Fecha.Value.ToString("dd/MMMM/yyyy");
+                }
+            }
+            else
+            {
+                msg = oRespuestaRegistro.Mensaje;
+            }
+        }
+        else
+        {
+            msg = "No se ha iniciado una sesion, porfavor inicie sesion e intente de nuevo";
         }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (oRespuestaRegistro.Data != null)
         {
-            await _jsRuntime.InvokeVoidAsync("getByIdMap", oReport);
+            if (firstRender && oRespuestaReport.Data != null)
+            {
+                await _jsRuntime.InvokeVoidAsync("getByIdMap", oRespuestaReport.Data);
+            }
         }
     }
 }

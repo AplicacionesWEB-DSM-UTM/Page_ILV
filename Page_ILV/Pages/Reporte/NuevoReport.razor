@@ -6,6 +6,7 @@
 @inject HttpClient Http;
 @inject NavigationManager Navegacion;
 @inject IJSRuntime _jsRuntime;
+@inject AppData appData
 
 <head>
     <meta charset="utf-8">
@@ -18,83 +19,97 @@
     <link rel="stylesheet" href="css/assets/css/stilos.css">
 </head>
 
-<h1 class="p-3">Crear Nuevo Reporte</h1>
+@if (msg != null)
+{
+    <p class="text-danger"><b><i>@msg</i></b></p> }
+else
+{
 
-<section class="p-3">
-    <div class="img-thumbnail" id="map" style="height:500px;width:100%;"></div>
-</section>
+    <h1 class="p-3">Crear Nuevo Reporte</h1>
 
-<section class="clean-block clean-info dark m-3 py-5">
-    <div class="container">
-        <div class="row align-items-center">
-            <EditForm Model="oReport">
-                <DataAnnotationsValidator />
-                <div class="form-group row my-1">
-                    <label class="col-sm-3">Foto</label>
-                    <div class="col-sm-9">
-                        <InputText class="form-control" @bind-Value="@oReport.NombreFoto"></InputText>
-                        <ValidationMessage For="(() => oReport.NombreFoto)" />
+    <section class="p-3">
+        <div class="img-thumbnail" id="map" style="height:500px;width:100%;"></div>
+    </section>
+
+    <section class="clean-block clean-info dark m-3 py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <EditForm Model="oReport">
+                    <DataAnnotationsValidator />
+                    <div class="form-group row my-1">
+                        <label class="col-sm-3">Foto</label>
+                        <div class="col-sm-9">
+                            <InputText class="form-control" @bind-Value="@oReport.NombreFoto"></InputText>
+                            <ValidationMessage For="(() => oReport.NombreFoto)" />
+                        </div>
                     </div>
-                </div>
-                <div class="form-group row mb-1">
-                    <label class="col-sm-3">Descripcion</label>
-                    <div class="col-sm-9">
-                        <InputText class="form-control" @bind-Value="@oReport.Descripcion"></InputText>
-                        <ValidationMessage For="(() => oReport.Descripcion)" />
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-3">Descripcion</label>
+                        <div class="col-sm-9">
+                            <InputText class="form-control" @bind-Value="@oReport.Descripcion"></InputText>
+                            <ValidationMessage For="(() => oReport.Descripcion)" />
+                        </div>
                     </div>
-                </div>
-                <div class="form-group row mb-1">
-                    <label class="col-sm-3">Usuario</label>
-                    <div class="col-sm-9">
-                        <InputSelect class="form-control" @bind-Value="@id_usuario">
-                            @if (oUsuario != null && oUsuario.Data != null)
-                            {
-                                @foreach (var oElemento in (List<UsuarioRequest>)oUsuario.Data)
-                                {
-                                    <option value="@oElemento.IdUsuario.ToString()">@oElemento.Correo</option>
-                                }
-                            }
-                        </InputSelect>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-3">Usuario</label>
+                        <div class="col-sm-9">
+                            <InputSelect class="form-control" @bind-Value="@id_usuario">
+                                @if (oUsuario != null && oUsuario.Data != null)
+                                    {
+                                    @foreach (var oElemento in (List<UsuarioRequest>)oUsuario.Data)
+                                        {
+                                        <option value="@oElemento.IdUsuario.ToString()">@oElemento.Correo</option>
+                                        }
+                                    }
+                            </InputSelect>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group row mb-1">
-                    <label class="col-sm-3">Etiqueta</label>
-                    <div class="col-sm-9">
-                        <InputSelect class="form-control" @bind-Value="@id_etiqueta">
-                            @if (oEtiqueta != null && oEtiqueta.Data != null)
-                            {
-                                @foreach (var oElemento in (List<EtiquetaRequest>)oEtiqueta.Data)
-                                {
-                                    <option value="@oElemento.IdEtiqueta.ToString()">@oElemento.Nombre</option>
-                                }
-                            }
-                        </InputSelect>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-3">Etiqueta</label>
+                        <div class="col-sm-9">
+                            <InputSelect class="form-control" @bind-Value="@id_etiqueta">
+                                @if (oEtiqueta != null && oEtiqueta.Data != null)
+                                    {
+                                    @foreach (var oElemento in (List<EtiquetaRequest>)oEtiqueta.Data)
+                                        {
+                                        <option value="@oElemento.IdEtiqueta.ToString()">@oElemento.Nombre</option>
+                                        }
+                                    }
+                            </InputSelect>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group row mb-1">
-                    <label class="col-sm-3">Latitud</label>
-                    <div class="col-sm-9">
-                        <InputNumber type="hidden" class="form-control" id="latitud" @bind-Value="@oReport.Latitud"></InputNumber>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-3">Latitud</label>
+                        <div class="col-sm-9">
+                            <InputNumber type="hidden" class="form-control" id="latitud" @bind-Value="@oReport.Latitud"></InputNumber>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group row mb-1">
-                    <label class="col-sm-3">Longitud</label>
-                    <div class="col-sm-9">
-                        <InputNumber type="hidden" class="form-control" id="longitud" @bind-Value="@oReport.Longitud"></InputNumber>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-3">Longitud</label>
+                        <div class="col-sm-9">
+                            <InputNumber type="hidden" class="form-control" id="longitud" @bind-Value="@oReport.Longitud"></InputNumber>
+                        </div>
                     </div>
-                </div>
-                <div>
-                    <button class="btn btn-outline-primary m1" @onclick="Guardar">Guadar</button>
-                    <button class="btn btn-outline-danger m1" @onclick="Cancelar">Cancelar</button>
-                </div>
-            </EditForm>
+                    <div>
+                        <button class="btn btn-outline-primary m1" @onclick="Guardar">Guadar</button>
+                        <button class="btn btn-outline-danger m1" @onclick="Cancelar">Cancelar</button>
+                    </div>
+                </EditForm>
+            </div>
         </div>
-    </div>
-</section>
+    </section>
+}
 
 @code {
-        [Parameter]
-        public string id_usuario { get; set; }
+    public string token { get; set; }
+    public string msg { get; set; }
+    UsuarioRequest oRegistro = new UsuarioRequest();
+    FotoRequest foto = new FotoRequest();
+    Respuesta<UsuarioRequest> oRespuestaRegistro = new Respuesta<UsuarioRequest>();
+    public string Url_usuario = "/api/Usuario/verify?key=";
+
+    [Parameter]
+    public string id_usuario { get; set; }
     public string id_etiqueta { get; set; }
 
     Respuesta<List<UsuarioRequest>> oUsuario = new Respuesta<List<UsuarioRequest>>();
@@ -116,11 +131,13 @@
         {
             oReport.IdUsuario = Convert.ToInt32(id_usuario);
             oReport.IdEtiqueta = Convert.ToInt32(id_etiqueta);
-            oReport.FotoRequest = new FotoRequest() {
+            oReport.FotoRequest = new FotoRequest()
+            {
                 Nombre = oReport.NombreFoto,
                 Url = "https://localhost:44315/Img/usr/" + oReport.NombreFoto
             };
-            oReport.GeoubicacionRequest = new GeoubicacionRequest() {
+            oReport.GeoubicacionRequest = new GeoubicacionRequest()
+            {
                 Latitud = oReport.Latitud,
                 Longitud = oReport.Longitud
             };
@@ -133,18 +150,40 @@
 
     protected override async Task OnInitializedAsync()
     {
-        oUsuario = await Http.GetFromJsonAsync<Respuesta<List<UsuarioRequest>>>(Url_Usuario);
-        oEtiqueta = await Http.GetFromJsonAsync<Respuesta<List<EtiquetaRequest>>>(Url_Etiqueta);
+        if (!string.IsNullOrEmpty(appData.Token))
+        {
+            token = appData.Token;
+            oRespuestaRegistro = await Http.GetFromJsonAsync<Respuesta<UsuarioRequest>>(Url_usuario + token);
+            oRegistro = oRespuestaRegistro.Data;
+            foto = oRegistro.FotoRequest;
 
-        id_usuario = oUsuario.Data.First().IdUsuario.ToString();
-        id_etiqueta = oEtiqueta.Data.First().IdEtiqueta.ToString();
+            if (oRegistro != null)
+            {
+                oUsuario = await Http.GetFromJsonAsync<Respuesta<List<UsuarioRequest>>>(Url_Usuario);
+                oEtiqueta = await Http.GetFromJsonAsync<Respuesta<List<EtiquetaRequest>>>(Url_Etiqueta);
+
+                id_usuario = oUsuario.Data.First().IdUsuario.ToString();
+                id_etiqueta = oEtiqueta.Data.First().IdEtiqueta.ToString();
+            }
+            else
+            {
+                msg = oRespuestaRegistro.Mensaje;
+            }
+        }
+        else
+        {
+            msg = "No se ha iniciado una sesion, porfavor inicie sesion e intente de nuevo";
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (oRespuestaRegistro.Data != null)
         {
-            await _jsRuntime.InvokeVoidAsync("initMap", null);
+            if (firstRender)
+            {
+                await _jsRuntime.InvokeVoidAsync("initMap", null);
+            }
         }
     }
 }
