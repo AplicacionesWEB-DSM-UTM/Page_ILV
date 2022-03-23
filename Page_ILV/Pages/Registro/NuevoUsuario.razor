@@ -75,7 +75,7 @@
 
         public string Url = "/api/Usuario";
 
-        private void Cancelar() => Navegacion.NavigateTo("/registro");
+        private void Cancelar() => Navegacion.NavigateTo("/");
 
         private async Task Guardar()
         {
@@ -91,7 +91,7 @@
 
                     var response = await Http.PostAsJsonAsync<UsuarioRequest>(Url, oRegistro);
                     oRespuesta = response.Content.ReadFromJsonAsync<Respuesta<object>>().Result;
-                    Navegacion.NavigateTo("/registro");
+                    Navegacion.NavigateTo("/");
                 }
             }
         }

@@ -116,7 +116,14 @@ else
             oRegistro = oRespuestaRegistro.Data;
             oFoto = oRegistro.FotoRequest;
 
-            if (oRegistro == null)
+            if (oRespuestaRegistro.Data != null)
+            {
+                if (oRegistro.IsAdmin == 0)
+                {
+                    msg = "No tienes los permisos necesarios";
+                }
+            }
+            else
             {
                 msg = oRespuestaRegistro.Mensaje;
             }

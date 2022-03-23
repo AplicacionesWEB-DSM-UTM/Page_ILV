@@ -160,24 +160,31 @@ else
             oRegistro = oRespuestaRegistro.Data;
             foto = oRegistro.FotoRequest;
 
-            if (oRegistro != null)
+            if (oRespuestaRegistro.Data != null)
             {
-                oUsuario = await Http.GetFromJsonAsync<Respuesta<List<UsuarioRequest>>>(Url_Usuario);
-                oEtiqueta = await Http.GetFromJsonAsync<Respuesta<List<EtiquetaRequest>>>(Url_Etiqueta);
-
-                id_usuario = oUsuario.Data.First().IdUsuario.ToString();
-                id_etiqueta = oEtiqueta.Data.First().IdEtiqueta.ToString();
-
-                if (id != 0)
+                if (oRegistro.IsAdmin == 0)
                 {
-                    oRespuestaReport = await Http.GetFromJsonAsync<Respuesta<ReporteRequest>>(Url + "/" + id);
-                    oReport = oRespuestaReport.Data;
-                    oReport.NombreFoto = oReport.FotoRequest.Nombre;
-                    oReport.Latitud = oReport.GeoubicacionRequest.Latitud;
-                    oReport.Longitud = oReport.GeoubicacionRequest.Longitud;
+                    msg = "No tienes los permisos necesarios";
+                }
+                else if (oRegistro.IsAdmin == 1)
+                {
+                    oUsuario = await Http.GetFromJsonAsync<Respuesta<List<UsuarioRequest>>>(Url_Usuario);
+                    oEtiqueta = await Http.GetFromJsonAsync<Respuesta<List<EtiquetaRequest>>>(Url_Etiqueta);
 
-                    id_usuario = oReport.IdUsuario.ToString();
-                    id_etiqueta = oReport.IdEtiqueta.ToString();
+                    id_usuario = oUsuario.Data.First().IdUsuario.ToString();
+                    id_etiqueta = oEtiqueta.Data.First().IdEtiqueta.ToString();
+
+                    if (id != 0)
+                    {
+                        oRespuestaReport = await Http.GetFromJsonAsync<Respuesta<ReporteRequest>>(Url + "/" + id);
+                        oReport = oRespuestaReport.Data;
+                        oReport.NombreFoto = oReport.FotoRequest.Nombre;
+                        oReport.Latitud = oReport.GeoubicacionRequest.Latitud;
+                        oReport.Longitud = oReport.GeoubicacionRequest.Longitud;
+
+                        id_usuario = oReport.IdUsuario.ToString();
+                        id_etiqueta = oReport.IdEtiqueta.ToString();
+                    }
                 }
             }
             else
@@ -198,7 +205,10 @@ else
             var respuesta = await Http.GetFromJsonAsync<Respuesta<ReporteRequest>>(Url + "/" + id);
             if (firstRender && respuesta.Data != null)
             {
-                await _jsRuntime.InvokeVoidAsync("editMap", respuesta.Data);
+                if (oRegistro.IsAdmin == 1)
+                {
+                    await _jsRuntime.InvokeVoidAsync("editMap", respuesta.Data);
+                }
             }
         }
     }

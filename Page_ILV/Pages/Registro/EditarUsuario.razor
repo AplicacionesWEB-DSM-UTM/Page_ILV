@@ -22,7 +22,7 @@
 <p class="text-danger"><b><i>@msg</i></b></p> }
 else
 {
-    <header class="text-center text-white masthead" style="background: url('css/img/Banner4.jpg')no-repeat center center; background-size: cover; height: 393px; ">
+    <header class="text-center text-white masthead" style="background: url('css/img/Osc/Img9.jpg')no-repeat center center; background-size: cover; height: 393px; ">
     </header>
 
     <section class="clean-block clean-info dark m-3 py-5">
@@ -125,13 +125,20 @@ else
             oRegistro = oRespuestaRegistro.Data;
             oFoto = oRegistro.FotoRequest;
 
-            if (oRegistro != null)
+            if (oRespuestaRegistro.Data != null)
             {
-                if (id != 0)
+                if (oRegistro.IsAdmin == 0)
                 {
-                    respuestaRegistro = await Http.GetFromJsonAsync<Respuesta<UsuarioRequest>>(Url + "/" + id);
-                    registro = respuestaRegistro.Data;
-                    registro.NombreFoto = registro.FotoRequest.Nombre;
+                    msg = "No tienes los permisos necesarios";
+                }
+                else if (oRegistro.IsAdmin == 1)
+                {
+                    if (id != 0)
+                    {
+                        respuestaRegistro = await Http.GetFromJsonAsync<Respuesta<UsuarioRequest>>(Url + "/" + id);
+                        registro = respuestaRegistro.Data;
+                        registro.NombreFoto = registro.FotoRequest.Nombre;
+                    }
                 }
             }
             else

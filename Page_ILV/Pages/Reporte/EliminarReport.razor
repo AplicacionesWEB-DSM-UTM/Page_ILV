@@ -102,16 +102,23 @@ else
             oRegistro = oRespuestaRegistro.Data;
             foto = oRegistro.FotoRequest;
 
-            if (oRegistro != null)
+            if (oRespuestaRegistro.Data != null)
             {
-                if (id != 0)
+                if (oRegistro.IsAdmin == 0)
                 {
-                    oRespuestaReport = await Http.GetFromJsonAsync<Respuesta<ReporteRequest>>(Url + "/" + id);
-                    oReport = oRespuestaReport.Data;
-                    oFoto = oReport.FotoRequest;
-                    oEtiqueta = oReport.EtiquetaRequest;
-                    oUsuario = oReport.UsuarioRequest;
-                    fecha = oReport.Fecha.Value.ToString("dd/MMMM/yyyy");
+                    msg = "No tienes los permisos necesarios";
+                }
+                else if (oRegistro.IsAdmin == 1)
+                {
+                    if (id != 0)
+                    {
+                        oRespuestaReport = await Http.GetFromJsonAsync<Respuesta<ReporteRequest>>(Url + "/" + id);
+                        oReport = oRespuestaReport.Data;
+                        oFoto = oReport.FotoRequest;
+                        oEtiqueta = oReport.EtiquetaRequest;
+                        oUsuario = oReport.UsuarioRequest;
+                        fecha = oReport.Fecha.Value.ToString("dd/MMMM/yyyy");
+                    }
                 }
             }
             else
@@ -132,7 +139,10 @@ else
             var respuesta = await Http.GetFromJsonAsync<Respuesta<ReporteRequest>>(Url + "/" + id);
             if (firstRender && respuesta.Data != null)
             {
-                await _jsRuntime.InvokeVoidAsync("getByIdMap", respuesta.Data);
+                if (oRegistro.IsAdmin == 1)
+                {
+                    await _jsRuntime.InvokeVoidAsync("getByIdMap", respuesta.Data);
+                }
             }
         }
     }

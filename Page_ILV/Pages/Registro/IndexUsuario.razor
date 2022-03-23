@@ -45,8 +45,8 @@ else
                             <td>@oElemento.Apellido</td>
                             <td>@oElemento.Correo</td>
                             <td>
-                                <a href="/editar-registro/@oElemento.IdUsuario" class="btn btn-outline-primary m-1">Detalles</a>
-                                <a href="/nuevo-registro/@oElemento.IdUsuario" class="btn btn-outline-secondary m-1">Editar</a>
+                                <a href="/detalles-registro/@oElemento.IdUsuario" class="btn btn-outline-primary m-1">Detalles</a>
+                                <a href="/editar-registro/@oElemento.IdUsuario" class="btn btn-outline-secondary m-1">Editar</a>
                                 <a href="/eliminar-registro/@oElemento.IdUsuario" class="btn btn-outline-danger m-1">Eliminar</a>
                             </td>
                         </tr>
@@ -61,7 +61,6 @@ else
     public string token { get; set; }
     public string msg { get; set; }
     UsuarioRequest oRegistro = new UsuarioRequest();
-    FotoRequest oFoto = new FotoRequest();
     Respuesta<UsuarioRequest> oRespuestaRegistro = new Respuesta<UsuarioRequest>();
     public string Url_usuario = "/api/Usuario/verify?key=";
 
@@ -75,11 +74,17 @@ else
             token = appData.Token;
             oRespuestaRegistro = await Http.GetFromJsonAsync<Respuesta<UsuarioRequest>>(Url_usuario + token);
             oRegistro = oRespuestaRegistro.Data;
-            oFoto = oRegistro.FotoRequest;
 
-            if (oRegistro != null)
+            if (oRespuestaRegistro.Data != null)
             {
-                oRespuesta = await Http.GetFromJsonAsync<Respuesta<List<UsuarioRequest>>>(Url);
+                if (oRegistro.IsAdmin == 0)
+                {
+                    msg = "No tienes los permisos necesarios";
+                }
+                else if (oRegistro.IsAdmin == 1)
+                {
+                    oRespuesta = await Http.GetFromJsonAsync<Respuesta<List<UsuarioRequest>>>(Url);
+                }
             }
             else
             {

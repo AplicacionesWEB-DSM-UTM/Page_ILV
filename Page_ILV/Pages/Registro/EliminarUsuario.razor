@@ -91,13 +91,20 @@ else
             oRegistro = oRespuestaRegistro.Data;
             oFoto = oRegistro.FotoRequest;
 
-            if (oRegistro != null)
+            if (oRespuestaRegistro.Data != null)
             {
-                if (id != 0)
+                if (oRegistro.IsAdmin == 0)
                 {
-                    respuestaRegistro = await Http.GetFromJsonAsync<Respuesta<UsuarioRequest>>(Url + "/" + id);
-                    registro = respuestaRegistro.Data;
-                    foto = registro.FotoRequest;
+                    msg = "No tienes los permisos necesarios";
+                }
+                else if (oRegistro.IsAdmin == 1)
+                {
+                    if (id != 0)
+                    {
+                        respuestaRegistro = await Http.GetFromJsonAsync<Respuesta<UsuarioRequest>>(Url + "/" + id);
+                        registro = respuestaRegistro.Data;
+                        foto = registro.FotoRequest;
+                    }
                 }
             }
             else

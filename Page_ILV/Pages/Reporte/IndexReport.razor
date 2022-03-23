@@ -77,7 +77,6 @@ else
     public string token { get; set; }
     public string msg { get; set; }
     UsuarioRequest oRegistro = new UsuarioRequest();
-    FotoRequest oFoto = new FotoRequest();
     Respuesta<UsuarioRequest> oRespuestaRegistro = new Respuesta<UsuarioRequest>();
     public string Url_usuario = "/api/Usuario/verify?key=";
 
@@ -91,7 +90,10 @@ else
             var respuesta = await Http.GetFromJsonAsync<Respuesta<List<ReporteRequest>>>(Url);
             if (firstRender && respuesta.Data != null)
             {
-                await _jsRuntime.InvokeVoidAsync("getMap", oRespuesta.Data.ToList());
+                if (oRegistro.IsAdmin == 1)
+                {
+                    await _jsRuntime.InvokeVoidAsync("getMap", respuesta.Data.ToList());
+                }
             }
         }
     }
@@ -103,17 +105,24 @@ else
             token = appData.Token;
             oRespuestaRegistro = await Http.GetFromJsonAsync<Respuesta<UsuarioRequest>>(Url_usuario + token);
             oRegistro = oRespuestaRegistro.Data;
-            oFoto = oRegistro.FotoRequest;
 
-            if (oRegistro != null)
+            if (oRespuestaRegistro.Data != null)
             {
-                oRespuesta = await Http.GetFromJsonAsync<Respuesta<List<ReporteRequest>>>(Url);
+                if (oRegistro.IsAdmin == 0)
+                {
+                    msg = "No tienes los permisos necesarios";
+                }
+                else if (oRegistro.IsAdmin == 1)
+                {
+                    oRespuesta = await Http.GetFromJsonAsync<Respuesta<List<ReporteRequest>>>(Url);
+                }
             }
             else
             {
                 msg = oRespuestaRegistro.Mensaje;
             }
-        }else
+        }
+        else
         {
             msg = "No se ha iniciado una sesion, porfavor inicie sesion e intente de nuevo";
         }
