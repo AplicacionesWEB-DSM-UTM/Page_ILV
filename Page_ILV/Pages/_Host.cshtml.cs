@@ -18,7 +18,9 @@ namespace Page_ILV.Pages
         public void OnGet()
         {
             var token = HttpContext.Request.Cookies["token"];
+            var isAdmin = HttpContext.Request.Cookies["isAdmin"];
             appData.Token = token;
+            appData.IsAdmin = isAdmin;
         }
     }
 }

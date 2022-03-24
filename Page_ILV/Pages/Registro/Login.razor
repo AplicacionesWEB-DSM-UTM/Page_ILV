@@ -48,13 +48,14 @@
 
 @code {
     private readonly string llaveToken = "token";
+    private readonly string llaveIsAdmin = "isAdmin";
     public string token { get; set; }
     public string msg { get; set; }
 
     [Parameter]
     public string response { get; set; }
     UsuarioRequest oRegistro = new UsuarioRequest();
-    Respuesta<object> oRespuesta = new Respuesta<object>();
+    Respuesta<UsuarioRequest> oRespuesta = new Respuesta<UsuarioRequest>();
     Respuesta<UsuarioRequest> oRespuestaRegistro = new Respuesta<UsuarioRequest>();
 
     public string Url = "/api/Usuario/login";
@@ -66,11 +67,12 @@
         if (oRegistro.Correo != null && oRegistro.Password != null && oRegistro.Correo != string.Empty && oRegistro.Password != string.Empty)
         {
             var response = await Http.PutAsJsonAsync<UsuarioRequest>(Url, oRegistro);
-            oRespuesta = response.Content.ReadFromJsonAsync<Respuesta<object>>().Result;
+            oRespuesta = response.Content.ReadFromJsonAsync<Respuesta<UsuarioRequest>>().Result;
 
             if (oRespuesta.Data != null)
             {
-                await _jsRuntime.InvokeVoidAsync("AgregarCookie", llaveToken, oRespuesta.Data, 45);
+                await _jsRuntime.InvokeVoidAsync("AgregarCookie", llaveToken, oRespuesta.Data.Token, 45);
+                await _jsRuntime.InvokeVoidAsync("AgregarCookie", llaveIsAdmin, oRespuesta.Data.IsAdmin, 45);
                 Navegacion.NavigateTo("/", true);
             }
             else

@@ -1,10 +1,6 @@
-﻿@using System.Net.Http;
-@using Page_ILV.Data;
-@using System.Net.Http.Json;
-@inject HttpClient Http;
-@inject NavigationManager Navegacion;
-@inject IJSRuntime _jsRuntime;
+﻿@inject NavigationManager Navegacion;
 @inject AppData appData
+@inject IJSRuntime _jsRuntime;
 
 <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #94d494;">
     <a class="navbar-brand" href="#"></a><img src="css/Img/textwit.png" alt="Text" width="185" height="40" />
@@ -34,37 +30,7 @@
                 </NavLink>
             </li>
 
-            @if (oRespuestaRegistro.Data != null)
-            {
-                if (oRegistro.IsAdmin == 0)
-                {
-                    <li class="nav-item px-3">
-                        <NavLink class="nav-link text-white" href="nuevo-report">
-                            <span class="oi oi-plus" aria-hidden="true"></span> Reportar Falla
-                        </NavLink>
-                    </li>
-                }
-                else if (oRegistro.IsAdmin == 1)
-                {
-                    <li class="nav-item px-3">
-                        <NavLink class="nav-link text-white" href="admin">
-                            <span class="oi oi-shield" aria-hidden="true"></span> Administrar
-                        </NavLink>
-                    </li>
-                }
-                <li class="nav-item px-3 align-content-end">
-                    <NavLink class="nav-link text-white" href="" @onclick="@CerrarSesion">
-                        <span class="oi oi-person" aria-hidden="true"></span> cerrar sesion
-                    </NavLink>
-                </li>
-
-                <li class="nav-item px-3 align-content-end">
-                    <NavLink class="nav-link text-white" href="perfil">
-                        <span class="oi oi-random" aria-hidden="true"></span> Mi perfil
-                    </NavLink>
-                </li>
-            }
-            else
+            @if (appData.Token == null)
             {
                 <li class="nav-item px-3 align-content-end">
                     <NavLink class="nav-link text-white" href="Login">
@@ -78,6 +44,37 @@
                     </NavLink>
                 </li>
             }
+            else
+            {
+                if (appData.IsAdmin != "1")
+                {
+                    <li class="nav-item px-3">
+                        <NavLink class="nav-link text-white" href="nuevo-report">
+                            <span class="oi oi-plus" aria-hidden="true"></span> Reportar Falla
+                        </NavLink>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item px-3">
+                        <NavLink class="nav-link text-white" href="admin">
+                            <span class="oi oi-shield" aria-hidden="true"></span> Administrar
+                        </NavLink>
+                    </li>
+                }
+
+                <li class="nav-item px-3 align-content-end">
+                    <NavLink class="nav-link text-white" href="" @onclick="@CerrarSesion">
+                        <span class="oi oi-person" aria-hidden="true"></span> cerrar sesion
+                    </NavLink>
+                </li>
+
+                <li class="nav-item px-3 align-content-end">
+                    <NavLink class="nav-link text-white" href="perfil">
+                        <span class="oi oi-shield" aria-hidden="true"></span> Mi perfil
+                    </NavLink>
+                </li>
+            }
         </ul>
 
 
@@ -88,12 +85,8 @@
 
 
 @code {
-    public string token { get; set; }
-    UsuarioRequest oRegistro = new UsuarioRequest();
-    Respuesta<UsuarioRequest> oRespuestaRegistro = new Respuesta<UsuarioRequest>();
-    public string Url_usuario = "/api/Usuario/verify?key=";
-
     private readonly string llaveToken = "token";
+    private readonly string llaveIsAdmin = "isAdmin";
 
     private bool collapseNavMenu = true;
 
@@ -107,16 +100,7 @@
     private async Task CerrarSesion()
     {
         await _jsRuntime.InvokeVoidAsync("EliminarCookie", llaveToken);
+        await _jsRuntime.InvokeVoidAsync("EliminarCookie", llaveIsAdmin);
         Navegacion.NavigateTo("/", true);
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        if (!string.IsNullOrEmpty(appData.Token))
-        {
-            token = appData.Token;
-            oRespuestaRegistro = await Http.GetFromJsonAsync<Respuesta<UsuarioRequest>>(Url_usuario + token);
-            oRegistro = oRespuestaRegistro.Data;
-        }
     }
 }
